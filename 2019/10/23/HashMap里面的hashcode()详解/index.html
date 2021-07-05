@@ -1,0 +1,822 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Java," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Bai HongHua" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="前言在聊 hashcode() 的作用之前，我们首先需要了解什么是散列表。散列表是一种数据结构，它的英文名称叫 Hash Table, 也是我们平常称的’哈希表’，或者 ‘Hash表’。散列表是一种支持利用数组下标实现随机访问的数据结构，也可以理解成散列表是一种数组的扩展。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="HashMap里面的hashcode()">
+<meta property="og:url" content="https://hndroid.github.io/2019/10/23/HashMap%E9%87%8C%E9%9D%A2%E7%9A%84hashcode()%E8%AF%A6%E8%A7%A3/index.html">
+<meta property="og:site_name" content="Bai HongHua">
+<meta property="og:description" content="前言在聊 hashcode() 的作用之前，我们首先需要了解什么是散列表。散列表是一种数据结构，它的英文名称叫 Hash Table, 也是我们平常称的’哈希表’，或者 ‘Hash表’。散列表是一种支持利用数组下标实现随机访问的数据结构，也可以理解成散列表是一种数组的扩展。">
+<meta property="og:locale">
+<meta property="og:image" content="http://baihonghua.cn/%E5%85%AC%E5%BC%8F.png">
+<meta property="og:image" content="http://baihonghua.cn/%E6%A1%B6%E6%95%B0%E7%BB%84.png">
+<meta property="og:image" content="http://baihonghua.cn/carbon%20%285%29.png">
+<meta property="og:image" content="http://baihonghua.cn/HashMap%E9%93%BE%E8%A1%A8%E6%B3%95%E6%A8%A1%E5%9E%8B.png">
+<meta property="og:image" content="http://baihonghua.cn/carbon%20%287%29.png">
+<meta property="og:image" content="http://baihonghua.cn/carbon%20%288%29.png">
+<meta property="article:published_time" content="2019-10-23T05:01:55.000Z">
+<meta property="article:modified_time" content="2021-06-20T11:52:16.131Z">
+<meta property="article:author" content="Bai HongHua">
+<meta property="article:tag" content="Java">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://baihonghua.cn/%E5%85%AC%E5%BC%8F.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://hndroid.github.io/2019/10/23/HashMap里面的hashcode()详解/"/>
+
+
+
+
+
+  <title> HashMap里面的hashcode() | Bai HongHua </title>
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Bai HongHua</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th-list"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://hndroid.github.io/2019/10/23/HashMap%E9%87%8C%E9%9D%A2%E7%9A%84hashcode()%E8%AF%A6%E8%A7%A3/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Bai HongHua">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                HashMap里面的hashcode()
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-10-23T13:01:55+08:00">
+                2019-10-23
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Java%E8%BF%9B%E9%98%B6/" itemprop="url" rel="index">
+                    <span itemprop="name">Java进阶</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+	  
+	    <span>&nbsp; | &nbsp;
+	    <span id="busuanzi_value_page_pv" ></span>次阅读
+	    </span>    
+	  
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h4 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h4><p>在聊 <code>hashcode()</code> 的作用之前，我们首先需要了解什么是散列表。散列表是一种数据结构，它的英文名称叫 <code>Hash Table</code>, 也是我们平常称的’哈希表’，或者 ‘Hash表’。散列表是一种支持利用数组下标实现随机访问的数据结构，也可以理解成散列表是一种数组的扩展。</p>
+<span id="more"></span>
+
+<p>下面我举个例子解析一下，在某次校运动会有 100 名选手参加，为了便于记录他们每个选手的成绩，选手会依次被贴上属于自己的号码编号。假设他们的编号是 1 到 100 依次编号。现在我们需要通过编程的方式，怎样才可以快速地拿到指定编号选手的成绩呢？</p>
+<p>通常我们会构建一个一维数组，然后把编号为 1 的选手信息放在下标为 0 的数组位置、把编号为 2 的选手信息放在下标为 1 的数组位置，以此类推，把编号为 100 的选手信息放在数组下标为 99 的位置里面。当我们现在想拿到编号为 x 的选手信息，我们只需要在数组下标为 y 的位置把选手的信息拿出来就可以的，这个取选手的信息的过程的时间复杂度为 O(1), 这样子的效率是不是很高？</p>
+<blockquote>
+<p>扩展：为什么数组根据数组下标的随机访问可以做到时间复杂度为 O(1) 呢？</p>
+</blockquote>
+<p>实际上，这个例子已经包含了散列思想了。在这个例子中，选手编码 x 和数组下标 y 可以组成的表达式：</p>
+<div align="center"><img src="http://baihonghua.cn/%E5%85%AC%E5%BC%8F.png"></div>
+
+<p>其中，运动员选手的编号我们叫做键（key）或者关键字。我们用来标识一个选手。然后我们把参赛编号转化为数组下标的映射方法就叫做散列函数（或者 Hash函数、哈希函数），而散列函数计算得到的值就叫做散列值（或者 Hash 值、哈希值）。</p>
+<p>由上面的例子，我们可以总结出这样的规律：散列表用的就是数组支持按照下标随机访问的时候，时间复杂度为 O(1) 的特性。我们通过散列表函数把元素的键值映射为下标，然后将数据存储在数组中对应下标的位置。当我们需要查询数组的元素的时候，同样需要把元素的键值通过散列函数映射成对应的数组下标，然后通过数组的下标找到对应的元素。</p>
+<h4 id="HashMap-如何实现查询-Value-的高效性"><a href="#HashMap-如何实现查询-Value-的高效性" class="headerlink" title="HashMap 如何实现查询 Value 的高效性"></a>HashMap 如何实现查询 Value 的高效性</h4><p>在聊 HashMap 如何实现查询 Value 的高效性之前，我们先复习一下在线性表里面查询一个指定的元素，假设这个线性表的长度为 1000，如果顺序查找，那么最差的时间复杂度为 O(1000)，而采用二分查找，最差的时间复杂度也是需要 O(500)。</p>
+<p>而在 HashMap 中，则是非常依赖于哈希码的有效性。在 HashMap 内部的结构，它可以看作是数组（Node&lt;K,V&gt;[] table）和链表结合组成的复合结构。并且放在 HashMap 中的数据和 HashMap 的内部结构中的数组是通过 hash() 相互关联的。</p>
+<p>我们还是拿上面运动会的例子说明，假设一个 hash() 的表达式为 x-1, 变换成数学公式里面的 y = f(x), 其中 f(x) = x - 1（其中 x 表示的是选手的编号，y 表示的是数组的下标）。当我们知道某个选手的编号为 1，那么我们只需要通过该对应的 hash() 函数转换，即 1 - 1 = 0，那么得到的 0 便是数组的下标，那么我们就可以很快地得到编号为 1 的选手成绩信息。同样地，如果我们需要储存编号为 50 的选手成绩信息，那么我们只需要把 50 代进 hash() 里面，即 50 - 1 = 49，得到的 49 就是编号为 50 的选手可以储存的位置，效果如下图：</p>
+<p><img src="http://baihonghua.cn/%E6%A1%B6%E6%95%B0%E7%BB%84.png"></p>
+<p>当然，在实际的 HashMap 中，hash() 可不是如上面的 <code>f(x) = x - 1</code> 一样简单。如下图(Java OpenJdk 11)：</p>
+<p><img src="http://baihonghua.cn/carbon%20%285%29.png"></p>
+<p>由上图观察可知，HashMap 里面的散列表数组下标的确定，有桶数组的长度 <code>n</code> 以及 <code>hash()</code> 函数确定。在 HashMap 中，但我们需要存储一对键值对的时候，我们需要把对应的键值装进 <code>hash(Object key)</code> 里面，转换成对应的哈希值以后，在通过与桶数组长度的运算，得到对应的桶数组下标，然后把对应的 Value 值存储在指定的数组下标的位置。同样地，如果我们根据键值得到 HashMap 中对应的 Value，那么我们需要进行存储的逆运算即可。</p>
+<h4 id="哈希碰撞"><a href="#哈希碰撞" class="headerlink" title="哈希碰撞"></a>哈希碰撞</h4><p>在实现 HashMap 的存和取操作之前，我们需要解决 HashMap 的哈希碰撞。我们知道，哈希算法是无法做到零冲突的，也就是说哈希算法存在哈希碰撞。这里基于组合数学里面的一个非常基础的理论，鸽巢原理（也叫抽屉原理）。这个原理描述的是如果有 10 个鸽巢，有 11 个鸽子，那么肯定有一个鸽巢中的鸽子数量是多于 1 个，换而言之，肯定存在着有 2 个鸽子在同一个鸽巢里面。</p>
+<p>为了解决哈希碰撞，人们提出了两种主要的解决方法，开发寻址法和链表法。而 HashMap 主要采用了链表法解决哈希冲突。HashMap 解决哈希冲突的模型如下图：</p>
+<div align="center"><img src="http://baihonghua.cn/HashMap%E9%93%BE%E8%A1%A8%E6%B3%95%E6%A8%A1%E5%9E%8B.png"></div>
+
+<p>HashMap 的默认初始的桶数组大小为 16，而当产生哈希碰撞的时候，则把发生碰撞的值添加到链表中。在 JDK1.8 中，当链表的长度大于 8 的时候，链表就会转换为红黑树，利用红黑树快速增删查改的特性，从而优化提高 HashMap 的效率。同时，当链表的长度再次少于 8 的时候，红黑树又会转化为链表，因为红黑树需要维护平衡，在链表的个数比较少的时候，对 HashMap 提高的效率并不明显。</p>
+<h4 id="在重写-hashcode-的时候，为什么需要重写-equals"><a href="#在重写-hashcode-的时候，为什么需要重写-equals" class="headerlink" title="在重写 hashcode() 的时候，为什么需要重写 equals()?"></a>在重写 hashcode() 的时候，为什么需要重写 equals()?</h4><p>有了上面的基础知识作为铺垫，有助于我们更好地理解在重写 hashcode() 的时候，为什么需要重写 equals() 方法。</p>
+<p>在使用 HashMap 的时候，我们需要调用 HashMap 的 public 方法 <code>put(K key, V value)</code>, 把键值对传进到 HashMap 的实例里面（<code>在这篇文章里面约定，把传进 HashMap 的键值对，分别称为&quot;键值&quot;、Value值</code>）。如下图：</p>
+<div align="center"><img src="http://baihonghua.cn/carbon%20%287%29.png"></div>
+
+<p>如上面的代码，我们自定义了键值 <code>IKey</code> 类, 类 <code>IKey</code> 很简单，如上图代码 17 行起。并在第 4 和 第 5 行分别创建了 <code>IKey</code> 的对象 <code>mIkey_1</code> 、 <code>mIkey_2</code>，并通过 HashMap 的实例调用 <code>put()</code> 函数把 <code>mIkey_1</code> 作为键值传进，然后通过调用 <code>get()</code> 函数打印键值为 <code>mIkey_2</code> 的 Value 值。按照我们的需求，通过调用 <code>get()</code> 函数打印键值为 <code>mIkey_2</code> 的 Value 值应该是 <code>I am Key_1</code> 所对应的键值对的 Value，因为我们传进 <code>Ikey</code> 里面的 <code>id</code> 值同都是 5，那么我们通过 <code>mIkey_2</code> 获取到的 <code>Value</code> 值也应该和传进的 <code>mIkey_1</code> 相同。然而经过控制台打印的结果却截然出乎我们的预料，控制台打印出的为 <code>null</code>，这是为什么呢？</p>
+<p>因为我们在自定义 HashMap 的时候，没有重写 <code>hashcode()</code> 函数，导致我们通过 <code>mIkey_2</code> 键值去获取 <code>mIkey_1</code> 传进的 Value 值的时候，直接调用了 Objct 类里面的 <code>hashcode()</code> 函数，我们知道 Object 类里面的 <code>hashcode()</code> 返回的是关于 IKey 对象实例内存地址（有可能为内存地址的哈希值，不同的 JDK 版本略有不同，这里暂不做考究，感兴趣的读者可自行翻阅 Object 的源码阅读，为了便于理解，我在这篇文章中认为 Object 类里面的 hashcode() 方法返回的是对象的内存地址）。</p>
+<p>显然地，<code>IKey</code> 的对象两个实例 <code>mIkey_1</code> 、 <code>mIkey_2</code> 在虚拟机内存中的地址是不同的，那么 HashMap 通过 <code>mIkey_2</code> 去查询 <code>mIkey_1</code> 的 Value 值的时候，因为不存在 <code>mIkey_2</code> 的内存地址的 key 值，于是控制台返回的结果为 <code>null</code>。</p>
+<div align="center"><img src="http://baihonghua.cn/carbon%20%288%29.png"></div>
+
+<p>如上图，我们在自定义的键值 <code>IKey</code> 中重写了 <code>hashcode()</code> 方法，但我们此时运行 IhashMap 中的 main 方法，那么这时候控制台打印的会是 “I am key_1” 吗？</p>
+<p>答案是否定的，在控制台打印输出的同样是 <code>null</code>。因为在 HashMap 中调用 <code>get()</code> 函数时，首先会通过 <code>mIkey_2</code> 的哈希值计算出 <code>mIkey_2</code> 在桶数组的位置下标，如果该位置下标的数组元素存在，再次判断该元素的哈希值是否与  <code>mIkey_2</code> 的哈希是否相同。我们前面提到，哈希算法无法做到零冲突。也就是说即使两个不同的 IKey 对象实例也可能存在着相同的哈希值。因此，在前面两个条件都成立的前提下，还需要调用 IKey 的 <code>equals()</code> 方法，判断里面的 <code>id</code> 是否相同。如果 <code>id</code> 的值相同，那么才可以通过 <code>mIkey_2</code> 为键值找到通过 <code>mIkey_1</code> 传进的键值。但是我们没有重写到 <code>equals()</code> 方法，故 HashMap 调用的是 Object 类的 <code>equals()</code> 方法。</p>
+<p>我们知道，Object 类中的 <code>equals()</code> 方法比较的是两个对象的内存地址。显然，<code>mIkey_1</code> 和 <code>mIkey_2</code> 的内存地址是不同的，因此我们在重写 <code>hashcode()</code> 方法了，但是没有重写到 <code>equals()</code> 的情况下，通过 <code>mIkey_2</code> 为键值去查询 <code>mIkey_1</code> 的 Value 值，仍然为 <code>null</code>。</p>
+<p>再看上图，当我们把 IKey 中已经注释的 <code>equals()</code> 注释掉，那么我们在控制台得到的结果，就是我们想要的 <code>I am Key_1</code>。</p>
+<h4 id="后言"><a href="#后言" class="headerlink" title="后言"></a>后言</h4><p>到了这里，可能你会想问，为什么平常我在 HashMap 中使用 Integer、String 等作为键值的时候，不需要重写 <code>hashcode()</code> 和 <code>equals()</code> 方法呢？ 这是因为 Java 工程师已经帮我们重写并且实现好了这两个方法。有兴趣的读者可以自行翻阅它们的源码查看。</p>
+<h4 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h4><ul>
+<li><a target="_blank" rel="noopener" href="https://www.ituring.com.cn/book/875">谢路云 《算法（第四版）》</a></li>
+<li><a target="_blank" rel="noopener" href="https://book.douban.com/subject/30295940/">袁春风 余子濠 《计算机系统基础 第二版》</a></li>
+<li><a target="_blank" rel="noopener" href="https://time.geekbang.org/column/intro/100006701">杨晓峰 《Java核心技术36讲》</a></li>
+<li><a target="_blank" rel="noopener" href="https://time.geekbang.org/column/intro/100017301">王争 《数据结构与算法之美》</a></li>
+</ul>
+
+      
+    </div>
+
+    <div>
+	
+	
+<div class="my_post_copyright">
+  <script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+  <!-- JS库 sweetalert 可修改路径 -->
+  <script type="text/javascript" src="http://jslibs.wuxubj.cn/sweetalert_mini/jquery-1.7.1.min.js"></script>
+  <script src="http://jslibs.wuxubj.cn/sweetalert_mini/sweetalert.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="http://jslibs.wuxubj.cn/sweetalert_mini/sweetalert.mini.css">
+  <p><span>本文标题:</span><a href="/2019/10/23/HashMap%E9%87%8C%E9%9D%A2%E7%9A%84hashcode()%E8%AF%A6%E8%A7%A3/">HashMap里面的hashcode()</a></p>
+  <p><span>文章作者:</span><a href="/" title="访问  的个人博客"></a></p>
+  <p><span>发布时间:</span>2019年10月23日 - 13:10</p>
+  <p><span>最后更新:</span>2021年06月20日 - 19:06</p>
+  <p><span>原始链接:</span><a href="/2019/10/23/HashMap%E9%87%8C%E9%9D%A2%E7%9A%84hashcode()%E8%AF%A6%E8%A7%A3/" title="HashMap里面的hashcode()">https://hndroid.github.io/2019/10/23/HashMap%E9%87%8C%E9%9D%A2%E7%9A%84hashcode()%E8%AF%A6%E8%A7%A3/</a>
+    <span class="copy-path"  title="点击复制文章链接"><i class="fa fa-clipboard" data-clipboard-text="https://hndroid.github.io/2019/10/23/HashMap%E9%87%8C%E9%9D%A2%E7%9A%84hashcode()%E8%AF%A6%E8%A7%A3/"  aria-label="复制成功！"></i></span>
+  </p>
+  <p><span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" title="Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)">署名-非商业性使用-禁止演绎 4.0 国际</a> 转载请保留原文链接及作者。</p>  
+</div>
+<script> 
+    var clipboard = new Clipboard('.fa-clipboard');
+    clipboard.on('success', $(function(){
+      $(".fa-clipboard").click(function(){
+        swal({   
+          title: "",   
+          text: '复制成功',   
+          html: false,
+          timer: 500,   
+          showConfirmButton: false
+        });
+      });
+    }));  
+</script>
+
+	
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Java/" rel="tag"># Java</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/10/17/View%E7%BB%98%E5%88%B6%E6%B5%81%E7%A8%8B/" rel="next" title="View绘制流程">
+                <i class="fa fa-chevron-left"></i> View绘制流程
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/11/25/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Java%E5%8F%8D%E5%B0%84%E6%9C%BA%E5%88%B6/" rel="prev" title="深入理解Java反射机制">
+                深入理解Java反射机制 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.jpg"
+               alt="" />
+          <p class="site-author-name" itemprop="name"></p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">33</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">16</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">7</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#HashMap-%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E6%9F%A5%E8%AF%A2-Value-%E7%9A%84%E9%AB%98%E6%95%88%E6%80%A7"><span class="nav-number">2.</span> <span class="nav-text">HashMap 如何实现查询 Value 的高效性</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%93%88%E5%B8%8C%E7%A2%B0%E6%92%9E"><span class="nav-number">3.</span> <span class="nav-text">哈希碰撞</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9C%A8%E9%87%8D%E5%86%99-hashcode-%E7%9A%84%E6%97%B6%E5%80%99%EF%BC%8C%E4%B8%BA%E4%BB%80%E4%B9%88%E9%9C%80%E8%A6%81%E9%87%8D%E5%86%99-equals"><span class="nav-number">4.</span> <span class="nav-text">在重写 hashcode() 的时候，为什么需要重写 equals()?</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%90%8E%E8%A8%80"><span class="nav-number">5.</span> <span class="nav-text">后言</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E7%8C%AE"><span class="nav-number">6.</span> <span class="nav-text">参考文献</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2017 - 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <!--<i class="fa fa-heart"></i>-->
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Bai HongHua</span>
+</div>
+
+
+<div class="powered-by">
+  <span>Powered by </span>
+  <span class="author" itemprop="copyrightHolder">Bai HongHua</span>
+</div>
+
+<div class="theme-info">
+  <span>Thanks For Hexo and NexT.Mist</span>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+  
+  <script type="text/javascript" src="true"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,794 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="RxJava," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Bai HongHua" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="前言在 RxJava 中，上游和下游的界限有时候并不是很明显。我的理解是：RxJava 的上下游的区分需要以观察者为比较的参照物，在观察者的之前的，都是可以看着上游。 如下面的 map() 变换操作符，just() 和 map() 操作符都可以看着上游，因为观察者订阅事件是发生在 Consumer 匿名对象中。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="RxJava系列-变换型操作符实战">
+<meta property="og:url" content="https://hndroid.github.io/2020/04/09/RxJava%E7%B3%BB%E5%88%97-%E5%8F%98%E6%8D%A2%E5%9E%8B%E6%93%8D%E4%BD%9C%E7%AC%A6%E5%AE%9E%E6%88%98/index.html">
+<meta property="og:site_name" content="Bai HongHua">
+<meta property="og:description" content="前言在 RxJava 中，上游和下游的界限有时候并不是很明显。我的理解是：RxJava 的上下游的区分需要以观察者为比较的参照物，在观察者的之前的，都是可以看着上游。 如下面的 map() 变换操作符，just() 和 map() 操作符都可以看着上游，因为观察者订阅事件是发生在 Consumer 匿名对象中。">
+<meta property="og:locale">
+<meta property="og:image" content="http://baihonghua.cn/%E5%BE%AE%E4%BF%A1%E5%85%AC%E4%BC%97%E5%8F%B7%E4%BA%8C%E7%BB%B4%E7%A0%81.png">
+<meta property="article:published_time" content="2020-04-09T01:34:47.000Z">
+<meta property="article:modified_time" content="2021-06-20T11:52:16.132Z">
+<meta property="article:author" content="Bai HongHua">
+<meta property="article:tag" content="RxJava">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://baihonghua.cn/%E5%BE%AE%E4%BF%A1%E5%85%AC%E4%BC%97%E5%8F%B7%E4%BA%8C%E7%BB%B4%E7%A0%81.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://hndroid.github.io/2020/04/09/RxJava系列-变换型操作符实战/"/>
+
+
+
+
+
+  <title> RxJava系列-变换型操作符实战 | Bai HongHua </title>
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Bai HongHua</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th-list"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://hndroid.github.io/2020/04/09/RxJava%E7%B3%BB%E5%88%97-%E5%8F%98%E6%8D%A2%E5%9E%8B%E6%93%8D%E4%BD%9C%E7%AC%A6%E5%AE%9E%E6%88%98/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Bai HongHua">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                RxJava系列-变换型操作符实战
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-04-09T09:34:47+08:00">
+                2020-04-09
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Android%E5%BC%80%E6%BA%90%E5%BA%93/" itemprop="url" rel="index">
+                    <span itemprop="name">Android开源库</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+	  
+	    <span>&nbsp; | &nbsp;
+	    <span id="busuanzi_value_page_pv" ></span>次阅读
+	    </span>    
+	  
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h4 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h4><p>在 RxJava 中，上游和下游的界限有时候并不是很明显。我的理解是：RxJava 的上下游的区分需要以观察者为比较的参照物，在观察者的之前的，都是可以看着上游。</p>
+<p>如下面的 <code>map()</code> 变换操作符，<code>just()</code> 和 <code>map()</code> 操作符都可以看着上游，因为观察者订阅事件是发生在 <code>Consumer</code> 匿名对象中。</p>
+<span id="more"></span>
+
+<h4 id="变换型操作符实战"><a href="#变换型操作符实战" class="headerlink" title="变换型操作符实战"></a>变换型操作符实战</h4><h5 id="map"><a href="#map" class="headerlink" title="# map()"></a># map()</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">learnRxMap</span><span class="params">()</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    Observable.just(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>)<span class="comment">// 生产事件</span></span><br><span class="line">            <span class="comment">// 变换事件</span></span><br><span class="line">            .map(<span class="keyword">new</span> Function&lt;Integer, String&gt;() &#123;</span><br><span class="line">                <span class="meta">@Override</span></span><br><span class="line">                <span class="function"><span class="keyword">public</span> String <span class="title">apply</span><span class="params">(Integer pInteger)</span> <span class="keyword">throws</span> Throwable </span>&#123;</span><br><span class="line">                    <span class="keyword">return</span> <span class="string">&quot;[ &quot;</span> + pInteger + <span class="string">&quot; ]&quot;</span>;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;)</span><br><span class="line">            <span class="comment">// 观察者订阅事件</span></span><br><span class="line">            .subscribe(<span class="keyword">new</span> Consumer&lt;String&gt;() &#123;</span><br><span class="line">                <span class="meta">@Override</span></span><br><span class="line">                <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">accept</span><span class="params">(String pS)</span> <span class="keyword">throws</span> Throwable </span>&#123;</span><br><span class="line">                    Log.d(<span class="string">&quot;变换型操作符 map &quot;</span>, <span class="string">&quot;accept: ----&gt; &quot;</span> + pS);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;);</span><br><span class="line"></span><br><span class="line"><span class="comment">//        2020-04-04 16:11:18.227 9596-9596/com.example.learnrxjava D/变换型操作符 map: accept: ----&gt; [ 1 ]</span></span><br><span class="line"><span class="comment">//        2020-04-04 16:11:18.227 9596-9596/com.example.learnrxjava D/变换型操作符 map: accept: ----&gt; [ 2 ]</span></span><br><span class="line"><span class="comment">//        2020-04-04 16:11:18.228 9596-9596/com.example.learnrxjava D/变换型操作符 map: accept: ----&gt; [ 3 ]</span></span><br><span class="line"><span class="comment">//        2020-04-04 16:11:18.228 9596-9596/com.example.learnrxjava D/变换型操作符 map: accept: ----&gt; [ 4 ]</span></span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>操作符 <code>map()</code> 可以看着上下游的之间的节点，把上游的 <code>Integer</code> 类型的变量，变换为 <code>String</code> 类型的字符串，而 <code>map()</code> 作为中间的节点可以变换上游的事件性质；</p>
+<h5 id="flatMap"><a href="#flatMap" class="headerlink" title="# flatMap()"></a># flatMap()</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">learnRxFlatMap</span><span class="params">()</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    String[] lStrings = &#123;<span class="string">&quot;learn &quot;</span>, <span class="string">&quot;RxJava&#x27;s &quot;</span>, <span class="string">&quot;Op&quot;</span>&#125;;</span><br><span class="line"></span><br><span class="line">    Observable.fromArray(lStrings)</span><br><span class="line">            .flatMap(<span class="keyword">new</span> Function&lt;String, ObservableSource&lt;String&gt;&gt;() &#123;</span><br><span class="line">                <span class="meta">@Override</span></span><br><span class="line">                <span class="function"><span class="keyword">public</span> ObservableSource&lt;String&gt; <span class="title">apply</span><span class="params">(<span class="keyword">final</span> String pS)</span> <span class="keyword">throws</span> Throwable </span>&#123;</span><br><span class="line"></span><br><span class="line">                    <span class="keyword">return</span> <span class="keyword">new</span> Observable&lt;String&gt;() &#123;</span><br><span class="line">                        <span class="meta">@Override</span></span><br><span class="line">                        <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">subscribeActual</span><span class="params">(<span class="meta">@NonNull</span> Observer&lt;? <span class="keyword">super</span> String&gt; observer)</span> </span>&#123;</span><br><span class="line">                            observer.onNext(pS + <span class="string">&quot;// &quot;</span>);</span><br><span class="line">                            observer.onNext(pS + <span class="string">&quot;== &quot;</span>);</span><br><span class="line">                        &#125;</span><br><span class="line">                    &#125;;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;)</span><br><span class="line">            .subscribe(<span class="keyword">new</span> Observer&lt;String&gt;() &#123;</span><br><span class="line">                <span class="meta">@Override</span></span><br><span class="line">                <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onSubscribe</span><span class="params">(<span class="meta">@NonNull</span> Disposable d)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">                <span class="meta">@Override</span></span><br><span class="line">                <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onNext</span><span class="params">(<span class="meta">@NonNull</span> String pS)</span> </span>&#123;</span><br><span class="line">                    Log.d(<span class="string">&quot;变换型操作符 onNext&quot;</span>, <span class="string">&quot;onNext: ----&gt; &quot;</span> + pS);</span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">                <span class="meta">@Override</span></span><br><span class="line">                <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onError</span><span class="params">(<span class="meta">@NonNull</span> Throwable e)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">                <span class="meta">@Override</span></span><br><span class="line">                <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onComplete</span><span class="params">()</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">                &#125;</span><br><span class="line">            &#125;);</span><br><span class="line"></span><br><span class="line"><span class="comment">//        2020-04-04 16:49:36.806 26443-26443/? D/变换型操作符 onNext: onNext: ----&gt; learn // </span></span><br><span class="line"><span class="comment">//        2020-04-04 16:49:36.806 26443-26443/? D/变换型操作符 onNext: onNext: ----&gt; learn == </span></span><br><span class="line"><span class="comment">//        2020-04-04 16:49:36.806 26443-26443/? D/变换型操作符 onNext: onNext: ----&gt; RxJava&#x27;s // </span></span><br><span class="line"><span class="comment">//        2020-04-04 16:49:36.806 26443-26443/? D/变换型操作符 onNext: onNext: ----&gt; RxJava&#x27;s == </span></span><br><span class="line"><span class="comment">//        2020-04-04 16:49:36.806 26443-26443/? D/变换型操作符 onNext: onNext: ----&gt; Op// </span></span><br><span class="line"><span class="comment">//        2020-04-04 16:49:36.806 26443-26443/? D/变换型操作符 onNext: onNext: ----&gt; Op==</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>操作符 <code>flatMap</code> 作为 RxJava 的中介节点，可以像 <code>map()</code> 操作一样，变换上游的事件性质，同时在还可以通过 <code>ObservableSource&lt;?&gt;&gt;()</code> 在变换事件性质的同时，同时向下游多次发射事件。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">learnRxFlatMap</span><span class="params">()</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">        String[] lStrings = &#123;<span class="string">&quot;learn &quot;</span>, <span class="string">&quot;RxJava&#x27;s &quot;</span>, <span class="string">&quot;Op&quot;</span>&#125;;</span><br><span class="line"></span><br><span class="line">        Observable.fromArray(lStrings)</span><br><span class="line">                .flatMap(<span class="keyword">new</span> Function&lt;String, ObservableSource&lt;String&gt;&gt;() &#123;</span><br><span class="line">                    <span class="meta">@Override</span></span><br><span class="line">                    <span class="function"><span class="keyword">public</span> ObservableSource&lt;String&gt; <span class="title">apply</span><span class="params">(<span class="keyword">final</span> String pS)</span> <span class="keyword">throws</span> Throwable </span>&#123;</span><br><span class="line"></span><br><span class="line">                        List&lt;String&gt; lStringList = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line"></span><br><span class="line">                        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">5</span>; i++) &#123;</span><br><span class="line">                            lStringList.add(pS + <span class="string">&quot;下标 &quot;</span> + <span class="string">&quot;[&quot;</span> + i + <span class="string">&quot;]&quot;</span>);</span><br><span class="line">                        &#125;</span><br><span class="line">                        <span class="comment">// 模拟网络延迟</span></span><br><span class="line">                        <span class="keyword">return</span> Observable.fromIterable(lStringList).delay(<span class="number">5</span>, TimeUnit.SECONDS);</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;)</span><br><span class="line">                .subscribe(<span class="keyword">new</span> Observer&lt;String&gt;() &#123;</span><br><span class="line">                    <span class="meta">@Override</span></span><br><span class="line">                    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onSubscribe</span><span class="params">(<span class="meta">@NonNull</span> Disposable d)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">                    &#125;</span><br><span class="line"></span><br><span class="line">                    <span class="meta">@Override</span></span><br><span class="line">                    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onNext</span><span class="params">(<span class="meta">@NonNull</span> String pS)</span> </span>&#123;</span><br><span class="line">                        Log.d(<span class="string">&quot;变换型操作符 onNext&quot;</span>, <span class="string">&quot;onNext: ----&gt; &quot;</span> + pS);</span><br><span class="line">                    &#125;</span><br><span class="line"></span><br><span class="line">                    <span class="meta">@Override</span></span><br><span class="line">                    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onError</span><span class="params">(<span class="meta">@NonNull</span> Throwable e)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">                    &#125;</span><br><span class="line"></span><br><span class="line">                    <span class="meta">@Override</span></span><br><span class="line">                    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onComplete</span><span class="params">()</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;);</span><br><span class="line"></span><br><span class="line"><span class="comment">//        2020-04-04 17:08:55.488 27958-27989/com.example.learnrxjava D/变换型操作符 onNext: onNext: ----&gt; learn 下标 [0]</span></span><br><span class="line"><span class="comment">//        2020-04-04 17:08:55.489 27958-27989/com.example.learnrxjava D/变换型操作符 onNext: onNext: ----&gt; learn 下标 [1]</span></span><br><span class="line"><span class="comment">//        2020-04-04 17:08:55.490 27958-27989/com.example.learnrxjava D/变换型操作符 onNext: onNext: ----&gt; learn 下标 [2]</span></span><br><span class="line"><span class="comment">//        2020-04-04 17:08:55.491 27958-27989/com.example.learnrxjava D/变换型操作符 onNext: onNext: ----&gt; learn 下标 [3]</span></span><br><span class="line"><span class="comment">//        2020-04-04 17:08:55.492 27958-27989/com.example.learnrxjava D/变换型操作符 onNext: onNext: ----&gt; learn 下标 [4]</span></span><br><span class="line"><span class="comment">//        2020-04-04 17:08:55.493 27958-27990/com.example.learnrxjava D/变换型操作符 onNext: onNext: ----&gt; RxJava&#x27;s 下标 [0]</span></span><br><span class="line"><span class="comment">//        2020-04-04 17:08:55.494 27958-27990/com.example.learnrxjava D/变换型操作符 onNext: onNext: ----&gt; RxJava&#x27;s 下标 [1]</span></span><br><span class="line"><span class="comment">//        2020-04-04 17:08:55.494 27958-27991/com.example.learnrxjava D/变换型操作符 onNext: onNext: ----&gt; Op下标 [0]</span></span><br><span class="line"><span class="comment">//        2020-04-04 17:08:55.495 27958-27990/com.example.learnrxjava D/变换型操作符 onNext: onNext: ----&gt; RxJava&#x27;s 下标 [2]</span></span><br><span class="line"><span class="comment">//        2020-04-04 17:08:55.495 27958-27991/com.example.learnrxjava D/变换型操作符 onNext: onNext: ----&gt; Op下标 [1]</span></span><br><span class="line"><span class="comment">//        2020-04-04 17:08:55.496 27958-27990/com.example.learnrxjava D/变换型操作符 onNext: onNext: ----&gt; RxJava&#x27;s 下标 [3]</span></span><br><span class="line"><span class="comment">//        2020-04-04 17:08:55.497 27958-27991/com.example.learnrxjava D/变换型操作符 onNext: onNext: ----&gt; Op下标 [2]</span></span><br><span class="line"><span class="comment">//        2020-04-04 17:08:55.497 27958-27991/com.example.learnrxjava D/变换型操作符 onNext: onNext: ----&gt; RxJava&#x27;s 下标 [4]</span></span><br><span class="line"><span class="comment">//        2020-04-04 17:08:55.498 27958-27991/com.example.learnrxjava D/变换型操作符 onNext: onNext: ----&gt; Op下标 [3]</span></span><br><span class="line"><span class="comment">//        2020-04-04 17:08:55.499 27958-27991/com.example.learnrxjava D/变换型操作符 onNext: onNext: ----&gt; Op下标 [4]</span></span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>操作符 <code>flatMap()</code> 在把上游的事件变换为多个事件继续向下游发射的同时，并不是顺序向下游发射的。</p>
+<h5 id="concatMap"><a href="#concatMap" class="headerlink" title="# concatMap()"></a># concatMap()</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">learnRxConcatMap</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    Observable.just(<span class="string">&quot;AA&quot;</span>, <span class="string">&quot;BBBB&quot;</span>, <span class="string">&quot;CVD&quot;</span>)</span><br><span class="line">            .concatMap(<span class="keyword">new</span> Function&lt;String, ObservableSource&lt;String&gt;&gt;() &#123;</span><br><span class="line">                <span class="meta">@Override</span></span><br><span class="line">                <span class="function"><span class="keyword">public</span> ObservableSource&lt;String&gt; <span class="title">apply</span><span class="params">(String pS)</span> <span class="keyword">throws</span> Throwable </span>&#123;</span><br><span class="line">                    List&lt;String&gt; lStringList = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line"></span><br><span class="line">                    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">5</span>; i++) &#123;</span><br><span class="line">                        lStringList.add(pS + <span class="string">&quot;下标 &quot;</span> + <span class="string">&quot;[&quot;</span> + i + <span class="string">&quot;]&quot;</span>);</span><br><span class="line">                    &#125;</span><br><span class="line">                    <span class="keyword">return</span> Observable.fromIterable(lStringList).delay(<span class="number">5</span>, TimeUnit.SECONDS);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;)</span><br><span class="line">            .subscribe(<span class="keyword">new</span> Consumer&lt;String&gt;() &#123;</span><br><span class="line">                <span class="meta">@Override</span></span><br><span class="line">                <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">accept</span><span class="params">(String pS)</span> <span class="keyword">throws</span> Throwable </span>&#123;</span><br><span class="line">                    Log.d(<span class="string">&quot;变换型操作符 concatMap&quot;</span>, <span class="string">&quot;accept: ----&gt; &quot;</span> + pS);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;);</span><br><span class="line"></span><br><span class="line"><span class="comment">//        2020-04-04 17:18:22.629 29058-29091/com.example.learnrxjava D/变换型操作符 concatMap: accept: ----&gt; AA下标 [0]</span></span><br><span class="line"><span class="comment">//        2020-04-04 17:18:22.630 29058-29091/com.example.learnrxjava D/变换型操作符 concatMap: accept: ----&gt; AA下标 [1]</span></span><br><span class="line"><span class="comment">//        2020-04-04 17:18:22.630 29058-29091/com.example.learnrxjava D/变换型操作符 concatMap: accept: ----&gt; AA下标 [2]</span></span><br><span class="line"><span class="comment">//        2020-04-04 17:18:22.630 29058-29091/com.example.learnrxjava D/变换型操作符 concatMap: accept: ----&gt; AA下标 [3]</span></span><br><span class="line"><span class="comment">//        2020-04-04 17:18:22.630 29058-29091/com.example.learnrxjava D/变换型操作符 concatMap: accept: ----&gt; AA下标 [4]</span></span><br><span class="line"><span class="comment">//        2020-04-04 17:18:27.665 29058-29095/com.example.learnrxjava D/变换型操作符 concatMap: accept: ----&gt; BBBB下标 [0]</span></span><br><span class="line"><span class="comment">//        2020-04-04 17:18:27.667 29058-29095/com.example.learnrxjava D/变换型操作符 concatMap: accept: ----&gt; BBBB下标 [1]</span></span><br><span class="line"><span class="comment">//        2020-04-04 17:18:27.667 29058-29095/com.example.learnrxjava D/变换型操作符 concatMap: accept: ----&gt; BBBB下标 [2]</span></span><br><span class="line"><span class="comment">//        2020-04-04 17:18:27.668 29058-29095/com.example.learnrxjava D/变换型操作符 concatMap: accept: ----&gt; BBBB下标 [3]</span></span><br><span class="line"><span class="comment">//        2020-04-04 17:18:27.669 29058-29095/com.example.learnrxjava D/变换型操作符 concatMap: accept: ----&gt; BBBB下标 [4]</span></span><br><span class="line"><span class="comment">//        2020-04-04 17:18:32.706 29058-29105/com.example.learnrxjava D/变换型操作符 concatMap: accept: ----&gt; CVD下标 [0]</span></span><br><span class="line"><span class="comment">//        2020-04-04 17:18:32.707 29058-29105/com.example.learnrxjava D/变换型操作符 concatMap: accept: ----&gt; CVD下标 [1]</span></span><br><span class="line"><span class="comment">//        2020-04-04 17:18:32.708 29058-29105/com.example.learnrxjava D/变换型操作符 concatMap: accept: ----&gt; CVD下标 [2]</span></span><br><span class="line"><span class="comment">//        2020-04-04 17:18:32.709 29058-29105/com.example.learnrxjava D/变换型操作符 concatMap: accept: ----&gt; CVD下标 [3]</span></span><br><span class="line"><span class="comment">//        2020-04-04 17:18:32.709 29058-29105/com.example.learnrxjava D/变换型操作符 concatMap: accept: ----&gt; CVD下标 [4]</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>变换操作符 <code>concatMap()</code> 和 <code>flatMap()</code> 操作符的功能一样，也是可以把上游的事件变换成多个事件向下游发送，但是 <code>concatMap()</code> 在多次发射事件的时候，是排序向下游发送的。</p>
+<h5 id="groupBy"><a href="#groupBy" class="headerlink" title="# groupBy()"></a># groupBy()</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">learnRxGroupBy</span><span class="params">()</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    Observable.just(<span class="number">10</span>, <span class="number">20</span>, <span class="number">30</span>, <span class="number">40</span>, <span class="number">50</span>)</span><br><span class="line">            .groupBy(<span class="keyword">new</span> Function&lt;Integer, String&gt;() &#123;</span><br><span class="line">                <span class="meta">@Override</span></span><br><span class="line">                <span class="function"><span class="keyword">public</span> String <span class="title">apply</span><span class="params">(Integer pInteger)</span> <span class="keyword">throws</span> Throwable </span>&#123;</span><br><span class="line">                    <span class="keyword">return</span> pInteger &gt; <span class="number">30</span> ? <span class="string">&quot;中年程序员&quot;</span> : <span class="string">&quot;年轻的程序员&quot;</span>;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;)</span><br><span class="line">            .subscribe(<span class="keyword">new</span> Consumer&lt;GroupedObservable&lt;String, Integer&gt;&gt;() &#123;</span><br><span class="line">                <span class="meta">@Override</span></span><br><span class="line">                <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">accept</span><span class="params">(<span class="keyword">final</span> GroupedObservable&lt;String, Integer&gt; pGroupedObservable)</span> <span class="keyword">throws</span> Throwable </span>&#123;</span><br><span class="line"></span><br><span class="line">                    Log.d(<span class="string">&quot;分类的 Key &quot;</span>, <span class="string">&quot;accept: &quot;</span> + pGroupedObservable.getKey());</span><br><span class="line"></span><br><span class="line">                    pGroupedObservable.subscribe(<span class="keyword">new</span> Consumer&lt;Integer&gt;() &#123;</span><br><span class="line">                        <span class="meta">@Override</span></span><br><span class="line">                        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">accept</span><span class="params">(Integer pInteger)</span> <span class="keyword">throws</span> Throwable </span>&#123;</span><br><span class="line">                            Log.d(<span class="string">&quot;变换操作符 groupBy&quot;</span>, <span class="string">&quot;accept: ----&gt; &quot;</span> + pGroupedObservable.getKey() + <span class="string">&quot;年龄 ：&quot;</span> + pInteger);</span><br><span class="line">                        &#125;</span><br><span class="line">                    &#125;);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;);</span><br><span class="line"></span><br><span class="line"><span class="comment">//        2020-04-04 17:32:21.656 3023-3023/com.example.learnrxjava D/分类的 Key: accept: 年轻的程序员</span></span><br><span class="line"><span class="comment">//        2020-04-04 17:32:21.656 3023-3023/com.example.learnrxjava D/变换操作符 groupBy: accept: ----&gt; 年轻的程序员年龄 ：10</span></span><br><span class="line"><span class="comment">//        2020-04-04 17:32:21.657 3023-3023/com.example.learnrxjava D/变换操作符 groupBy: accept: ----&gt; 年轻的程序员年龄 ：20</span></span><br><span class="line"><span class="comment">//        2020-04-04 17:32:21.657 3023-3023/com.example.learnrxjava D/变换操作符 groupBy: accept: ----&gt; 年轻的程序员年龄 ：30</span></span><br><span class="line"><span class="comment">//        2020-04-04 17:32:21.657 3023-3023/com.example.learnrxjava D/分类的 Key: accept: 中年程序员</span></span><br><span class="line"><span class="comment">//        2020-04-04 17:32:21.657 3023-3023/com.example.learnrxjava D/变换操作符 groupBy: accept: ----&gt; 中年程序员年龄 ：40</span></span><br><span class="line"><span class="comment">//        2020-04-04 17:32:21.658 3023-3023/com.example.learnrxjava D/变换操作符 groupBy: accept: ----&gt; 中年程序员年龄 ：50</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>操作符 <code>groupBy()</code> 的作用主要是在其节点中，把上游的事件按照一定的标准分类成 <code>group</code>，然后再发送往下游。但下游需要按照一定的模板才可以把 <code>group</code> 分类出来。</p>
+<h5 id="buffer"><a href="#buffer" class="headerlink" title="# buffer()"></a># buffer()</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">  <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">learnRxBuffer</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    Observable.create(<span class="keyword">new</span> ObservableOnSubscribe&lt;Integer&gt;() &#123;</span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">subscribe</span><span class="params">(<span class="meta">@NonNull</span> ObservableEmitter&lt;Integer&gt; emitter)</span> <span class="keyword">throws</span> Throwable </span>&#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> lI = <span class="number">0</span>; lI &lt; <span class="number">100</span>; lI++) &#123;</span><br><span class="line">                emitter.onNext(lI);</span><br><span class="line">            &#125;</span><br><span class="line">            emitter.onComplete();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;)</span><br><span class="line">            .buffer(<span class="number">20</span>)</span><br><span class="line">            .subscribe(<span class="keyword">new</span> Consumer&lt;List&lt;Integer&gt;&gt;() &#123;</span><br><span class="line">                <span class="meta">@Override</span></span><br><span class="line">                <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">accept</span><span class="params">(List&lt;Integer&gt; pIntegers)</span> <span class="keyword">throws</span> Throwable </span>&#123;</span><br><span class="line">                    Log.d(<span class="string">&quot;变换操作符 buffer&quot;</span>, <span class="string">&quot;accept: ----&gt; &quot;</span> + pIntegers);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;);</span><br><span class="line"></span><br><span class="line"><span class="comment">//        2020-04-04 17:49:38.264 13267-13267/com.example.learnrxjava D/变换操作符 buffer: accept: ----&gt; [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]</span></span><br><span class="line"><span class="comment">//        2020-04-04 17:49:38.264 13267-13267/com.example.learnrxjava D/变换操作符 buffer: accept: ----&gt; [20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39]</span></span><br><span class="line"><span class="comment">//        2020-04-04 17:49:38.265 13267-13267/com.example.learnrxjava D/变换操作符 buffer: accept: ----&gt; [40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59]</span></span><br><span class="line"><span class="comment">//        2020-04-04 17:49:38.265 13267-13267/com.example.learnrxjava D/变换操作符 buffer: accept: ----&gt; [60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79]</span></span><br><span class="line"><span class="comment">//        2020-04-04 17:49:38.266 13267-13267/com.example.learnrxjava D/变换操作符 buffer: accept: ----&gt; [80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99]</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>对于上游有大量的事件发送下来的时候，如果需要先把事件缓存到指定的数量后，再往下游发送，则变换操作符 <code>buffer()</code> 可以做到先缓存事件到指定的数量，然后再把缓存的事件一起发送往下游。</p>
+<p><img src="http://baihonghua.cn/%E5%BE%AE%E4%BF%A1%E5%85%AC%E4%BC%97%E5%8F%B7%E4%BA%8C%E7%BB%B4%E7%A0%81.png"></p>
+
+      
+    </div>
+
+    <div>
+	
+	
+<div class="my_post_copyright">
+  <script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+  <!-- JS库 sweetalert 可修改路径 -->
+  <script type="text/javascript" src="http://jslibs.wuxubj.cn/sweetalert_mini/jquery-1.7.1.min.js"></script>
+  <script src="http://jslibs.wuxubj.cn/sweetalert_mini/sweetalert.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="http://jslibs.wuxubj.cn/sweetalert_mini/sweetalert.mini.css">
+  <p><span>本文标题:</span><a href="/2020/04/09/RxJava%E7%B3%BB%E5%88%97-%E5%8F%98%E6%8D%A2%E5%9E%8B%E6%93%8D%E4%BD%9C%E7%AC%A6%E5%AE%9E%E6%88%98/">RxJava系列-变换型操作符实战</a></p>
+  <p><span>文章作者:</span><a href="/" title="访问  的个人博客"></a></p>
+  <p><span>发布时间:</span>2020年04月09日 - 09:04</p>
+  <p><span>最后更新:</span>2021年06月20日 - 19:06</p>
+  <p><span>原始链接:</span><a href="/2020/04/09/RxJava%E7%B3%BB%E5%88%97-%E5%8F%98%E6%8D%A2%E5%9E%8B%E6%93%8D%E4%BD%9C%E7%AC%A6%E5%AE%9E%E6%88%98/" title="RxJava系列-变换型操作符实战">https://hndroid.github.io/2020/04/09/RxJava%E7%B3%BB%E5%88%97-%E5%8F%98%E6%8D%A2%E5%9E%8B%E6%93%8D%E4%BD%9C%E7%AC%A6%E5%AE%9E%E6%88%98/</a>
+    <span class="copy-path"  title="点击复制文章链接"><i class="fa fa-clipboard" data-clipboard-text="https://hndroid.github.io/2020/04/09/RxJava%E7%B3%BB%E5%88%97-%E5%8F%98%E6%8D%A2%E5%9E%8B%E6%93%8D%E4%BD%9C%E7%AC%A6%E5%AE%9E%E6%88%98/"  aria-label="复制成功！"></i></span>
+  </p>
+  <p><span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" title="Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)">署名-非商业性使用-禁止演绎 4.0 国际</a> 转载请保留原文链接及作者。</p>  
+</div>
+<script> 
+    var clipboard = new Clipboard('.fa-clipboard');
+    clipboard.on('success', $(function(){
+      $(".fa-clipboard").click(function(){
+        swal({   
+          title: "",   
+          text: '复制成功',   
+          html: false,
+          timer: 500,   
+          showConfirmButton: false
+        });
+      });
+    }));  
+</script>
+
+	
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/RxJava/" rel="tag"># RxJava</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/04/09/RxJava%E7%B3%BB%E5%88%97-%E5%88%9B%E5%BB%BA%E5%9E%8B%E6%93%8D%E4%BD%9C%E7%AC%A6%E5%AE%9E%E6%88%98/" rel="next" title="RxJava系列-创建型操作符实战">
+                <i class="fa fa-chevron-left"></i> RxJava系列-创建型操作符实战
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2020/04/09/RxJava%E7%B3%BB%E5%88%97-%E8%BF%87%E6%BB%A4%E5%9E%8B%E6%93%8D%E4%BD%9C%E7%AC%A6%E5%AE%9E%E6%88%98/" rel="prev" title="RxJava系列-过滤型操作符实战">
+                RxJava系列-过滤型操作符实战 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.jpg"
+               alt="" />
+          <p class="site-author-name" itemprop="name"></p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">33</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">16</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">7</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8F%98%E6%8D%A2%E5%9E%8B%E6%93%8D%E4%BD%9C%E7%AC%A6%E5%AE%9E%E6%88%98"><span class="nav-number">2.</span> <span class="nav-text">变换型操作符实战</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#map"><span class="nav-number">2.1.</span> <span class="nav-text"># map()</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#flatMap"><span class="nav-number">2.2.</span> <span class="nav-text"># flatMap()</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#concatMap"><span class="nav-number">2.3.</span> <span class="nav-text"># concatMap()</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#groupBy"><span class="nav-number">2.4.</span> <span class="nav-text"># groupBy()</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#buffer"><span class="nav-number">2.5.</span> <span class="nav-text"># buffer()</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2017 - 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <!--<i class="fa fa-heart"></i>-->
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Bai HongHua</span>
+</div>
+
+
+<div class="powered-by">
+  <span>Powered by </span>
+  <span class="author" itemprop="copyrightHolder">Bai HongHua</span>
+</div>
+
+<div class="theme-info">
+  <span>Thanks For Hexo and NexT.Mist</span>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+  
+  <script type="text/javascript" src="true"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

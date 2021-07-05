@@ -1,0 +1,837 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Android," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Bai HongHua" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="前言在 Android 四大组件中，Activity 在其中占有的位置也是非常重要的; 吃透 Activity 的生命周期的流程，无疑对在开发 Android 是非常有帮助的，那么，今天让我们一起来深入学习 Android 的生命周期吧！">
+<meta property="og:type" content="article">
+<meta property="og:title" content="深入学习Activity的生命周期">
+<meta property="og:url" content="https://hndroid.github.io/2017/10/04/%E6%B7%B1%E5%85%A5%E5%AD%A6%E4%B9%A0Activity%E7%9A%84%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F/index.html">
+<meta property="og:site_name" content="Bai HongHua">
+<meta property="og:description" content="前言在 Android 四大组件中，Activity 在其中占有的位置也是非常重要的; 吃透 Activity 的生命周期的流程，无疑对在开发 Android 是非常有帮助的，那么，今天让我们一起来深入学习 Android 的生命周期吧！">
+<meta property="og:locale">
+<meta property="og:image" content="http://baihonghua.cn/Selection_040.png">
+<meta property="og:image" content="http://baihonghua.cn/Selection_042.png">
+<meta property="og:image" content="http://baihonghua.cn/activity_lifecycle.png">
+<meta property="og:image" content="http://baihonghua.cn/Peek%202017-10-04%2000-29.gif">
+<meta property="og:image" content="http://baihonghua.cn/Peek%202017-10-04%2000-35.gif">
+<meta property="og:image" content="http://baihonghua.cn/Peek%202017-10-04%2017-08.gif">
+<meta property="og:image" content="http://baihonghua.cn/Peek%202017-10-04%2000-39.gif">
+<meta property="og:image" content="http://baihonghua.cn/Peek%202017-10-04%2000-47.gif">
+<meta property="og:image" content="http://baihonghua.cn/Peek%202017-10-04%2000-48.gif">
+<meta property="article:published_time" content="2017-10-04T09:51:13.000Z">
+<meta property="article:modified_time" content="2021-06-20T11:52:16.145Z">
+<meta property="article:author" content="Bai HongHua">
+<meta property="article:tag" content="Android">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://baihonghua.cn/Selection_040.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://hndroid.github.io/2017/10/04/深入学习Activity的生命周期/"/>
+
+
+
+
+
+  <title> 深入学习Activity的生命周期 | Bai HongHua </title>
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Bai HongHua</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th-list"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://hndroid.github.io/2017/10/04/%E6%B7%B1%E5%85%A5%E5%AD%A6%E4%B9%A0Activity%E7%9A%84%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Bai HongHua">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                深入学习Activity的生命周期
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-10-04T17:51:13+08:00">
+                2017-10-04
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Android%E5%9B%9B%E5%A4%A7%E7%BB%84%E4%BB%B6/" itemprop="url" rel="index">
+                    <span itemprop="name">Android四大组件</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+	  
+	    <span>&nbsp; | &nbsp;
+	    <span id="busuanzi_value_page_pv" ></span>次阅读
+	    </span>    
+	  
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>在 Android 四大组件中，Activity 在其中占有的位置也是非常重要的; 吃透 Activity 的生命周期的流程，无疑对在开发 Android 是非常有帮助的，那么，今天让我们一起来深入学习 Android 的生命周期吧！</p>
+<span id="more"></span>
+
+<p>在学习 Actvity 的生命周期之前，首先聊聊笔者本人对 Activity 的了解吧。在笔者刚刚接触 Android 开发的时候，对 Activity 是什么还是挺疑惑的，而且挺多入门的课本也没有详细去介绍到底什么是 Activity，大多简单一句 Activity 是 Android 的四大组件之一，然后就没有它什么事了，就开始介绍它的生命周期的回调函数…<br>可能现在看这篇文章的你可能会想，Activity 不就是一个活动，我们平常在 Android 手机的一整屏幕里面看到的全部内容吗？例如下图手机屏幕吗？</p>
+<p><img src="http://baihonghua.cn/Selection_040.png"></p>
+<p>笔者认为这是对 Activity 的认识有偏颇的，在手机一个屏幕里面看到的那不是一个 Activity，是一个继承于 FrameLayout 的 DecorView 下面的子类 View，而 Activity 只是作为一个载体去承载这些视图 View。笔者认为可以把 Activity 看作一个载体，而不是在手机屏幕上面看到的视图吧。</p>
+<blockquote>
+<p>Activity 的层级结构</p>
+</blockquote>
+<p><img src="http://baihonghua.cn/Selection_042.png"><br>因为我拿这张图出来主要是为了更好地说明 Activity 可以看作为一个载体，而不是在手机屏幕看到的视图（TitleView 和 ContentView），所以更往具体的源码实现，因为笔者的能力暂时有限，在这里就暂时不深究了：）; </p>
+<blockquote>
+<p>Activity 生命周期流程图</p>
+</blockquote>
+<p><img src="http://baihonghua.cn/activity_lifecycle.png" alt="activity_lifecycle"></p>
+<p>Activity 在 Android 系统里面都是被 activity stack (activity 栈)管理着（栈管理元素的特点是先进后出），在当一个新的 Activity 被启动的时候，这个新的 Activity 就会被压进 activity stack 的里面，成为 activity stack 的栈顶的元素，并且这个 Activity 开始准备与用户进行交互，也就是成为活动的 Activity（需要注意的一点，当前与用户进行交互的 Activity 会一直保留着栈顶的位置，直到当前的与用户交互的 Activity 被退出，其后面的 Activity 会再次回到栈顶而成为活动的 Activity）。</p>
+<p>新的 Activity 被压进任务栈，或者当前与用户进行交互的 Activity 被弹出任务栈，在压栈或者弹出栈的过程中，都会触发上面 Activity 生命周期流程图中的对应的回调函数。</p>
+<h4 id="1-0-Activity中每个回调函数所代表的状态"><a href="#1-0-Activity中每个回调函数所代表的状态" class="headerlink" title="1.0  Activity中每个回调函数所代表的状态"></a>1.0  Activity中每个回调函数所代表的状态</h4><ul>
+<li><code>onCreate()</code> 在 activity 第一次被创建的时候被回调，在这个回调函数里面，主要是用来设置要显示的布局视图、以及把数据绑定到布局视图上面去，还有初始化变量等操作;<ul>
+<li><code>onRestrart()</code> 在 Activity 完全不可见，但 Activity 没有被销毁的情况下，在这个 Activity 重新回到栈顶的时候（当往全不可见的时候，这个 Activity 不在栈顶）被回调，紧接着会回调 <code>onStart()</code>;</li>
+<li><code>onStart()</code> 在 Activity 对于用户来说全部可见，但是还没有获取到焦点，也就是用户还不可以在上面进行操作的时候被回调，但是这个回调的过程对于用户来说，是非常短暂的，用户察觉不出来;<ul>
+<li><code>onResume()</code> 在当前的 Activity 获取到焦点的前被回调，也就是回调后，用户可以在上面进行操作，例如可以点击输入框进行输入等一系列的操作，这时候对于用户，内容是全部可见的;</li>
+<li><code>onPause()</code> 在但前内容对于用户只是部分可见的时候被回调（注意：界面弹出一个 dialog、或者点击输入框而弹出输入框是不会回调该函数，虽然这时候也是相对用户部分可见），例如有个对话框风格的 Activity 弹出的时候，会回调该函数;</li>
+</ul>
+</li>
+<li><code>onStop()</code> 当在 Activity 的视图完全不可见的时候，这个函数会被回调;</li>
+</ul>
+</li>
+<li><code>onDestroy()</code> 在这个 Activity 退出执行 finish() 方法,或者在系统内存紧张的时候会杀死这个 Activity 而回调这一个函数;</li>
+</ul>
+<p>上面的回调函数，在用户打开一个 Activity、关闭一个 Activity、重新打开一个 Activity 的时候对应的回调函数。</p>
+<h4 id="2-0-通过-Dubug-模式查看-Activity-的生命周期"><a href="#2-0-通过-Dubug-模式查看-Activity-的生命周期" class="headerlink" title="2.0 通过 Dubug 模式查看 Activity 的生命周期"></a>2.0 通过 Dubug 模式查看 Activity 的生命周期</h4><p>下面的代码是笔者进行 Dubug 的时候使用的源码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MainActivity</span> <span class="keyword">extends</span> <span class="title">AppCompatActivity</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> String TAG = <span class="string">&quot;测试Activity的生命周期&quot;</span>;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onCreate</span><span class="params">(Bundle savedInstanceState)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">super</span>.onCreate(savedInstanceState);</span><br><span class="line">        setContentView(R.layout.activity_main);</span><br><span class="line">        Log.e(TAG, <span class="string">&quot;onCreate: &quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onStart</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">super</span>.onStart();</span><br><span class="line">        Log.e(TAG, <span class="string">&quot;onStart: &quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onResume</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">super</span>.onResume();</span><br><span class="line">        Log.e(TAG, <span class="string">&quot;onResume: &quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onPause</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">super</span>.onPause();</span><br><span class="line">        Log.d(TAG, <span class="string">&quot;onPause: &quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onStop</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">super</span>.onStop();</span><br><span class="line">        Log.d(TAG, <span class="string">&quot;onStop: &quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onRestart</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">super</span>.onRestart();</span><br><span class="line">        Log.d(TAG, <span class="string">&quot;onRestart: &quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onDestroy</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">super</span>.onDestroy();</span><br><span class="line">        Log.d(TAG, <span class="string">&quot;onDestroy: &quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h5 id="2-1-首次把一个-Activity-添加到栈顶："><a href="#2-1-首次把一个-Activity-添加到栈顶：" class="headerlink" title="2.1 首次把一个 Activity 添加到栈顶："></a>2.1 首次把一个 Activity 添加到栈顶：</h5><p><img src="http://baihonghua.cn/Peek%202017-10-04%2000-29.gif" alt="202017-10-04"></p>
+<h5 id="2-2-按下菜单键的时候-Activity-的状态："><a href="#2-2-按下菜单键的时候-Activity-的状态：" class="headerlink" title="2.2 按下菜单键的时候 Activity 的状态："></a>2.2 按下菜单键的时候 Activity 的状态：</h5><p><img src="http://baihonghua.cn/Peek%202017-10-04%2000-35.gif" alt="202017-10-04"></p>
+<h5 id="2-3-当一个对话式的-Activity-运行在任务栈顶的时候："><a href="#2-3-当一个对话式的-Activity-运行在任务栈顶的时候：" class="headerlink" title="2.3 当一个对话式的 Activity 运行在任务栈顶的时候："></a>2.3 当一个对话式的 Activity 运行在任务栈顶的时候：</h5><p><img src="http://baihonghua.cn/Peek%202017-10-04%2017-08.gif" alt="2017-08"></p>
+<p>这个 Dubug 模式主要是为了检验，Activity 在弹出输入框、Fragment 类型的 Dialog、非 Fragment 类型的 Dialog 的时候，该 Activity 的生命周期的变化，从控制台的日志可以看出，上面三种情况都不会导致 Activity 的生命周期发生变化，而当笔者点击第三个按钮的时候（这个按钮监控的是个只是展示图片、dialog 形式的 Activity），控制台打印出了 onPause() 回调函数，也就是在 Activity 部分可见的时候，或者这样子说：当一个体积大 Activity 被 另一个体积小的 Activity 遮住的时候，体积大的 Activity 对于用户仍然部分可见，这时候会回调 onPause() 函数;<br>当体积小的 Activity 被隐藏起来，这时候体积大的 Activity 就会回到栈顶，这时候回到栈顶前，就会回调 onResume() 函数，再次准备与用户进行交互;</p>
+<h5 id="2-4-关闭-Activity-即把该-Activity-从栈顶移除："><a href="#2-4-关闭-Activity-即把该-Activity-从栈顶移除：" class="headerlink" title="2.4 关闭 Activity,即把该 Activity 从栈顶移除："></a>2.4 关闭 Activity,即把该 Activity 从栈顶移除：</h5><p><img src="http://baihonghua.cn/Peek%202017-10-04%2000-39.gif" alt="2000-39"></p>
+<h4 id="3-0-横竖屏切换时-Activity-的生命周期的变化"><a href="#3-0-横竖屏切换时-Activity-的生命周期的变化" class="headerlink" title="3.0 横竖屏切换时 Activity 的生命周期的变化"></a>3.0 横竖屏切换时 Activity 的生命周期的变化</h4><h5 id="3-1-由竖屏切换到横屏时，Activity-的生命周期的变化"><a href="#3-1-由竖屏切换到横屏时，Activity-的生命周期的变化" class="headerlink" title="3.1 由竖屏切换到横屏时，Activity 的生命周期的变化"></a>3.1 由竖屏切换到横屏时，Activity 的生命周期的变化</h5><p><img src="http://baihonghua.cn/Peek%202017-10-04%2000-47.gif" alt="2000-47"></p>
+<hr>
+<h5 id="3-2-由横屏屏切换到竖屏时，Activity-的生命周期的变化"><a href="#3-2-由横屏屏切换到竖屏时，Activity-的生命周期的变化" class="headerlink" title="3.2 由横屏屏切换到竖屏时，Activity 的生命周期的变化"></a>3.2 由横屏屏切换到竖屏时，Activity 的生命周期的变化</h5><p><img src="http://baihonghua.cn/Peek%202017-10-04%2000-48.gif" alt="2000-48"></p>
+<hr>
+<p>由上面横竖屏切换调试的日志可以看出，当横竖屏进行切换的时候，Activity 的会回调 <code>onDestroy()</code> 函数，然后再次回调 onCreat() 函数，但是，有时候我们不允许应用在切换横竖屏的时候，发生回调 onDestroy() 函数，然后在回调 onCreat() 函数。这时候，如果不想让 Activity 重新调用 <code>onCreat()</code> 函数，可以有下面两个解决方法：</p>
+<ul>
+<li>在 AndroidManifest.xml里面配置相关属性，直接不允许进行横竖屏的切换;<br>主要是在自己不允许进行横竖屏切换的 Activity 配置 <code>android:screenOrientation=&quot;portrait&quot;</code> 这个属性，portrait 是指只能竖屏，不可以横屏;而 landscape 则反之。</li>
+</ul>
+<p>application 节点下的代码如下：（如下面注释 1 ）</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">application</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:allowBackup</span>=<span class="string">&quot;true&quot;</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:icon</span>=<span class="string">&quot;@mipmap/ic_launcher&quot;</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:label</span>=<span class="string">&quot;@string/app_name&quot;</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:roundIcon</span>=<span class="string">&quot;@mipmap/ic_launcher_round&quot;</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:supportsRtl</span>=<span class="string">&quot;true&quot;</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:theme</span>=<span class="string">&quot;@style/AppTheme&quot;</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">activity</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:name</span>=<span class="string">&quot;.MainActivity&quot;</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:screenOrientation</span>=<span class="string">&quot;portrait&quot;</span>&gt;</span> <span class="comment">&lt;!--1--&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">intent-filter</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">action</span> <span class="attr">android:name</span>=<span class="string">&quot;android.intent.action.MAIN&quot;</span>/&gt;</span></span><br><span class="line"></span><br><span class="line">                <span class="tag">&lt;<span class="name">category</span> <span class="attr">android:name</span>=<span class="string">&quot;android.intent.category.LAUNCHER&quot;</span>/&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">intent-filter</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">activity</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">application</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li> 在 AndroidManifest.xml里面配置相关属性，直接声明该 Activity 的生命周期不发生变化<br>主要是在 AndroidManifest.xml 的对应的 Activity 配置 <code>android:configChanges=&quot;orientation|keyboardHidden|screenSize&quot;</code> 这个属性。</li>
+</ul>
+<p>application 节点下的代码如下：（如下面注释 2 ）</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">application</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:allowBackup</span>=<span class="string">&quot;true&quot;</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:icon</span>=<span class="string">&quot;@mipmap/ic_launcher&quot;</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:label</span>=<span class="string">&quot;@string/app_name&quot;</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:roundIcon</span>=<span class="string">&quot;@mipmap/ic_launcher_round&quot;</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:supportsRtl</span>=<span class="string">&quot;true&quot;</span></span></span><br><span class="line"><span class="tag">        <span class="attr">android:theme</span>=<span class="string">&quot;@style/AppTheme&quot;</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">activity</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:name</span>=<span class="string">&quot;.MainActivity&quot;</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:configChanges</span>=<span class="string">&quot;orientation|keyboardHidden|screenSize&quot;</span>&gt;</span> <span class="comment">&lt;!--2--&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">intent-filter</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">action</span> <span class="attr">android:name</span>=<span class="string">&quot;android.intent.action.MAIN&quot;</span>/&gt;</span></span><br><span class="line"></span><br><span class="line">                <span class="tag">&lt;<span class="name">category</span> <span class="attr">android:name</span>=<span class="string">&quot;android.intent.category.LAUNCHER&quot;</span>/&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">intent-filter</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">activity</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">application</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h3><p>这次对于 Activity 的生命周期的流程分析，只是在其 API 接口的层面上面的分析。对于 Activity 的生命周期的分析，笔者认为，只要抓住 Activity 的变化、Activity 与 Activity 之间切换的关系以及他们在 Activity 栈中的位置，就会很好地分析出 Activity 的生命周期的变化的。</p>
+<hr>
+<p>源码下载 <a target="_blank" rel="noopener" href="https://github.com/haimaBai/MyBlogPro">ActivityTest</a></p>
+
+      
+    </div>
+
+    <div>
+	
+	
+<div class="my_post_copyright">
+  <script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+  <!-- JS库 sweetalert 可修改路径 -->
+  <script type="text/javascript" src="http://jslibs.wuxubj.cn/sweetalert_mini/jquery-1.7.1.min.js"></script>
+  <script src="http://jslibs.wuxubj.cn/sweetalert_mini/sweetalert.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="http://jslibs.wuxubj.cn/sweetalert_mini/sweetalert.mini.css">
+  <p><span>本文标题:</span><a href="/2017/10/04/%E6%B7%B1%E5%85%A5%E5%AD%A6%E4%B9%A0Activity%E7%9A%84%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F/">深入学习Activity的生命周期</a></p>
+  <p><span>文章作者:</span><a href="/" title="访问  的个人博客"></a></p>
+  <p><span>发布时间:</span>2017年10月04日 - 17:10</p>
+  <p><span>最后更新:</span>2021年06月20日 - 19:06</p>
+  <p><span>原始链接:</span><a href="/2017/10/04/%E6%B7%B1%E5%85%A5%E5%AD%A6%E4%B9%A0Activity%E7%9A%84%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F/" title="深入学习Activity的生命周期">https://hndroid.github.io/2017/10/04/%E6%B7%B1%E5%85%A5%E5%AD%A6%E4%B9%A0Activity%E7%9A%84%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F/</a>
+    <span class="copy-path"  title="点击复制文章链接"><i class="fa fa-clipboard" data-clipboard-text="https://hndroid.github.io/2017/10/04/%E6%B7%B1%E5%85%A5%E5%AD%A6%E4%B9%A0Activity%E7%9A%84%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F/"  aria-label="复制成功！"></i></span>
+  </p>
+  <p><span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" title="Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)">署名-非商业性使用-禁止演绎 4.0 国际</a> 转载请保留原文链接及作者。</p>  
+</div>
+<script> 
+    var clipboard = new Clipboard('.fa-clipboard');
+    clipboard.on('success', $(function(){
+      $(".fa-clipboard").click(function(){
+        swal({   
+          title: "",   
+          text: '复制成功',   
+          html: false,
+          timer: 500,   
+          showConfirmButton: false
+        });
+      });
+    }));  
+</script>
+
+	
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Android/" rel="tag"># Android</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/09/12/%E4%B8%80%E4%B8%AA%E5%B0%8F%E7%8B%97%E7%8B%97%E7%9A%84%E6%95%85%E4%BA%8B/" rel="next" title="一个小狗狗的故事">
+                <i class="fa fa-chevron-left"></i> 一个小狗狗的故事
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/10/17/Service%E7%9A%84%E5%90%AF%E5%8A%A8%E4%B8%8E%E7%BB%91%E5%AE%9A/" rel="prev" title="Service的启动与绑定">
+                Service的启动与绑定 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.jpg"
+               alt="" />
+          <p class="site-author-name" itemprop="name"></p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">33</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">16</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">7</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-0-Activity%E4%B8%AD%E6%AF%8F%E4%B8%AA%E5%9B%9E%E8%B0%83%E5%87%BD%E6%95%B0%E6%89%80%E4%BB%A3%E8%A1%A8%E7%9A%84%E7%8A%B6%E6%80%81"><span class="nav-number">1.1.</span> <span class="nav-text">1.0  Activity中每个回调函数所代表的状态</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-0-%E9%80%9A%E8%BF%87-Dubug-%E6%A8%A1%E5%BC%8F%E6%9F%A5%E7%9C%8B-Activity-%E7%9A%84%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F"><span class="nav-number">1.2.</span> <span class="nav-text">2.0 通过 Dubug 模式查看 Activity 的生命周期</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#2-1-%E9%A6%96%E6%AC%A1%E6%8A%8A%E4%B8%80%E4%B8%AA-Activity-%E6%B7%BB%E5%8A%A0%E5%88%B0%E6%A0%88%E9%A1%B6%EF%BC%9A"><span class="nav-number">1.2.1.</span> <span class="nav-text">2.1 首次把一个 Activity 添加到栈顶：</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2-2-%E6%8C%89%E4%B8%8B%E8%8F%9C%E5%8D%95%E9%94%AE%E7%9A%84%E6%97%B6%E5%80%99-Activity-%E7%9A%84%E7%8A%B6%E6%80%81%EF%BC%9A"><span class="nav-number">1.2.2.</span> <span class="nav-text">2.2 按下菜单键的时候 Activity 的状态：</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2-3-%E5%BD%93%E4%B8%80%E4%B8%AA%E5%AF%B9%E8%AF%9D%E5%BC%8F%E7%9A%84-Activity-%E8%BF%90%E8%A1%8C%E5%9C%A8%E4%BB%BB%E5%8A%A1%E6%A0%88%E9%A1%B6%E7%9A%84%E6%97%B6%E5%80%99%EF%BC%9A"><span class="nav-number">1.2.3.</span> <span class="nav-text">2.3 当一个对话式的 Activity 运行在任务栈顶的时候：</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2-4-%E5%85%B3%E9%97%AD-Activity-%E5%8D%B3%E6%8A%8A%E8%AF%A5-Activity-%E4%BB%8E%E6%A0%88%E9%A1%B6%E7%A7%BB%E9%99%A4%EF%BC%9A"><span class="nav-number">1.2.4.</span> <span class="nav-text">2.4 关闭 Activity,即把该 Activity 从栈顶移除：</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-0-%E6%A8%AA%E7%AB%96%E5%B1%8F%E5%88%87%E6%8D%A2%E6%97%B6-Activity-%E7%9A%84%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%E7%9A%84%E5%8F%98%E5%8C%96"><span class="nav-number">1.3.</span> <span class="nav-text">3.0 横竖屏切换时 Activity 的生命周期的变化</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#3-1-%E7%94%B1%E7%AB%96%E5%B1%8F%E5%88%87%E6%8D%A2%E5%88%B0%E6%A8%AA%E5%B1%8F%E6%97%B6%EF%BC%8CActivity-%E7%9A%84%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%E7%9A%84%E5%8F%98%E5%8C%96"><span class="nav-number">1.3.1.</span> <span class="nav-text">3.1 由竖屏切换到横屏时，Activity 的生命周期的变化</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3-2-%E7%94%B1%E6%A8%AA%E5%B1%8F%E5%B1%8F%E5%88%87%E6%8D%A2%E5%88%B0%E7%AB%96%E5%B1%8F%E6%97%B6%EF%BC%8CActivity-%E7%9A%84%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%E7%9A%84%E5%8F%98%E5%8C%96"><span class="nav-number">1.3.2.</span> <span class="nav-text">3.2 由横屏屏切换到竖屏时，Activity 的生命周期的变化</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B0%8F%E7%BB%93"><span class="nav-number">2.</span> <span class="nav-text">小结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2017 - 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <!--<i class="fa fa-heart"></i>-->
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Bai HongHua</span>
+</div>
+
+
+<div class="powered-by">
+  <span>Powered by </span>
+  <span class="author" itemprop="copyrightHolder">Bai HongHua</span>
+</div>
+
+<div class="theme-info">
+  <span>Thanks For Hexo and NexT.Mist</span>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+  
+  <script type="text/javascript" src="true"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

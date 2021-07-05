@@ -1,0 +1,789 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="RxJava," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Bai HongHua" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="# startWith()">
+<meta property="og:type" content="article">
+<meta property="og:title" content="RxJava系类-合并型操作符实战">
+<meta property="og:url" content="https://hndroid.github.io/2020/04/09/RxJava%E7%B3%BB%E7%B1%BB-%E5%90%88%E5%B9%B6%E5%9E%8B%E6%93%8D%E4%BD%9C%E7%AC%A6%E5%AE%9E%E6%88%98/index.html">
+<meta property="og:site_name" content="Bai HongHua">
+<meta property="og:description" content="# startWith()">
+<meta property="og:locale">
+<meta property="og:image" content="http://baihonghua.cn/%E5%BE%AE%E4%BF%A1%E5%85%AC%E4%BC%97%E5%8F%B7%E4%BA%8C%E7%BB%B4%E7%A0%81.png">
+<meta property="article:published_time" content="2020-04-09T01:38:16.000Z">
+<meta property="article:modified_time" content="2021-06-20T11:52:16.133Z">
+<meta property="article:author" content="Bai HongHua">
+<meta property="article:tag" content="RxJava">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://baihonghua.cn/%E5%BE%AE%E4%BF%A1%E5%85%AC%E4%BC%97%E5%8F%B7%E4%BA%8C%E7%BB%B4%E7%A0%81.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://hndroid.github.io/2020/04/09/RxJava系类-合并型操作符实战/"/>
+
+
+
+
+
+  <title> RxJava系类-合并型操作符实战 | Bai HongHua </title>
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Bai HongHua</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th-list"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://hndroid.github.io/2020/04/09/RxJava%E7%B3%BB%E7%B1%BB-%E5%90%88%E5%B9%B6%E5%9E%8B%E6%93%8D%E4%BD%9C%E7%AC%A6%E5%AE%9E%E6%88%98/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Bai HongHua">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                RxJava系类-合并型操作符实战
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-04-09T09:38:16+08:00">
+                2020-04-09
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Android%E5%BC%80%E6%BA%90%E5%BA%93/" itemprop="url" rel="index">
+                    <span itemprop="name">Android开源库</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+	  
+	    <span>&nbsp; | &nbsp;
+	    <span id="busuanzi_value_page_pv" ></span>次阅读
+	    </span>    
+	  
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h5 id="startWith"><a href="#startWith" class="headerlink" title="# startWith()"></a># startWith()</h5><span id="more"></span>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">learnRxStartWait</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    Observable.create(<span class="keyword">new</span> ObservableOnSubscribe&lt;Integer&gt;() &#123;</span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">subscribe</span><span class="params">(<span class="meta">@NonNull</span> ObservableEmitter&lt;Integer&gt; emitter)</span> <span class="keyword">throws</span> Throwable </span>&#123;</span><br><span class="line">            emitter.onNext(<span class="number">10</span>);</span><br><span class="line">            emitter.onNext(<span class="number">20</span>);</span><br><span class="line">            emitter.onNext(<span class="number">30</span>);</span><br><span class="line">            emitter.onNext(<span class="number">40</span>);</span><br><span class="line">            emitter.onComplete();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;).startWith(Observable.create(<span class="keyword">new</span> ObservableOnSubscribe&lt;Integer&gt;() &#123;</span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">subscribe</span><span class="params">(<span class="meta">@NonNull</span> ObservableEmitter&lt;Integer&gt; emitter)</span> <span class="keyword">throws</span> Throwable </span>&#123;</span><br><span class="line">            emitter.onNext(<span class="number">1000</span>);</span><br><span class="line">            emitter.onNext(<span class="number">2000</span>);</span><br><span class="line">            emitter.onNext(<span class="number">3000</span>);</span><br><span class="line">            emitter.onNext(<span class="number">4000</span>);</span><br><span class="line">            <span class="comment">// 发射事件完成以后，必须加上 emitter.onComplete()，不然不会执行合并操作另外一个被观察者</span></span><br><span class="line">            emitter.onComplete();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;)).subscribe(<span class="keyword">new</span> Consumer&lt;Integer&gt;() &#123;</span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">accept</span><span class="params">(Integer pInteger)</span> <span class="keyword">throws</span> Throwable </span>&#123;</span><br><span class="line">            Log.d(<span class="string">&quot;合并型操作符 startWith &quot;</span>, <span class="string">&quot;accept: ----&gt; &quot;</span> + pInteger);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line"><span class="comment">//        04-05 20:48:21.479 29474-29474/com.example.learnrxjava D/合并型操作符 startWith: accept: ----&gt; 1000</span></span><br><span class="line"><span class="comment">//        04-05 20:48:21.479 29474-29474/com.example.learnrxjava D/合并型操作符 startWith: accept: ----&gt; 2000</span></span><br><span class="line"><span class="comment">//        04-05 20:48:21.479 29474-29474/com.example.learnrxjava D/合并型操作符 startWith: accept: ----&gt; 3000</span></span><br><span class="line"><span class="comment">//        04-05 20:48:21.479 29474-29474/com.example.learnrxjava D/合并型操作符 startWith: accept: ----&gt; 4000</span></span><br><span class="line"><span class="comment">//        04-05 20:48:21.479 29474-29474/com.example.learnrxjava D/合并型操作符 startWith: accept: ----&gt; 10</span></span><br><span class="line"><span class="comment">//        04-05 20:48:21.479 29474-29474/com.example.learnrxjava D/合并型操作符 startWith: accept: ----&gt; 20</span></span><br><span class="line"><span class="comment">//        04-05 20:48:21.479 29474-29474/com.example.learnrxjava D/合并型操作符 startWith: accept: ----&gt; 30</span></span><br><span class="line"><span class="comment">//        04-05 20:48:21.479 29474-29474/com.example.learnrxjava D/合并型操作符 startWith: accept: ----&gt; 40</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>合并操作符 <code>startWith()</code> 可以看着：<code>Observable_1.startWith(Observable_2)</code>, 其执行的顺序是先发射 <code>Observable_2</code> 里面的事件，在调用完 <code>onComplete()</code> 方法以后，再去发射 <code>Observable_1</code> 里面的事件。</p>
+<h5 id="concatWith"><a href="#concatWith" class="headerlink" title="# concatWith()"></a># concatWith()</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">learnRxConcatWait</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    Observable.create(<span class="keyword">new</span> ObservableOnSubscribe&lt;Integer&gt;() &#123;</span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">subscribe</span><span class="params">(<span class="meta">@NonNull</span> ObservableEmitter&lt;Integer&gt; emitter)</span> <span class="keyword">throws</span> Throwable </span>&#123;</span><br><span class="line">            emitter.onNext(<span class="number">10</span>);</span><br><span class="line">            emitter.onNext(<span class="number">20</span>);</span><br><span class="line">            emitter.onNext(<span class="number">30</span>);</span><br><span class="line">            emitter.onNext(<span class="number">40</span>);</span><br><span class="line">            emitter.onComplete();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;).concatWith(Observable.create(<span class="keyword">new</span> ObservableOnSubscribe&lt;Integer&gt;() &#123;</span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">subscribe</span><span class="params">(<span class="meta">@NonNull</span> ObservableEmitter&lt;Integer&gt; emitter)</span> <span class="keyword">throws</span> Throwable </span>&#123;</span><br><span class="line">            emitter.onNext(<span class="number">1000</span>);</span><br><span class="line">            emitter.onNext(<span class="number">2000</span>);</span><br><span class="line">            emitter.onNext(<span class="number">3000</span>);</span><br><span class="line">            emitter.onNext(<span class="number">4000</span>);</span><br><span class="line">            emitter.onComplete();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;)).subscribe(<span class="keyword">new</span> Consumer&lt;Integer&gt;() &#123;</span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">accept</span><span class="params">(Integer pInteger)</span> <span class="keyword">throws</span> Throwable </span>&#123;</span><br><span class="line">            Log.d(<span class="string">&quot;合并型操作符&quot;</span>, <span class="string">&quot;accept: ----&gt; &quot;</span> + pInteger);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line"><span class="comment">//        04-05 20:59:25.607 620-620/com.example.learnrxjava D/合并型操作符: accept: ----&gt; 10</span></span><br><span class="line"><span class="comment">//        04-05 20:59:25.607 620-620/com.example.learnrxjava D/合并型操作符: accept: ----&gt; 20</span></span><br><span class="line"><span class="comment">//        04-05 20:59:25.607 620-620/com.example.learnrxjava D/合并型操作符: accept: ----&gt; 30</span></span><br><span class="line"><span class="comment">//        04-05 20:59:25.607 620-620/com.example.learnrxjava D/合并型操作符: accept: ----&gt; 40</span></span><br><span class="line"><span class="comment">//        04-05 20:59:25.607 620-620/com.example.learnrxjava D/合并型操作符: accept: ----&gt; 1000</span></span><br><span class="line"><span class="comment">//        04-05 20:59:25.607 620-620/com.example.learnrxjava D/合并型操作符: accept: ----&gt; 2000</span></span><br><span class="line"><span class="comment">//        04-05 20:59:25.607 620-620/com.example.learnrxjava D/合并型操作符: accept: ----&gt; 3000</span></span><br><span class="line"><span class="comment">//        04-05 20:59:25.607 620-620/com.example.learnrxjava D/合并型操作符: accept: ----&gt; 4000</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>合并操作符 <code>concatWith()</code> 可以看着表达式: <code>Observable_1.concatWith(Observable_2)</code>, 与上面的 <code>startWith()</code> 不同的是，<code>concatWith()</code> 会先发射 <code>Observable_1</code> 里面的事件，然后再发射 <code>Observable_2</code> 里面的事件。</p>
+<h5 id="concat"><a href="#concat" class="headerlink" title="# concat()"></a># concat()</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">learnRxConcat</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    Observable.concat(</span><br><span class="line">            Observable.just(<span class="number">10</span>)</span><br><span class="line">            ,</span><br><span class="line">            Observable.just(<span class="number">20</span>)</span><br><span class="line">            ,</span><br><span class="line">            Observable.just(<span class="number">30</span>)</span><br><span class="line">            ,</span><br><span class="line">            Observable.create(<span class="keyword">new</span> ObservableOnSubscribe&lt;Integer&gt;() &#123;</span><br><span class="line">                <span class="meta">@Override</span></span><br><span class="line">                <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">subscribe</span><span class="params">(<span class="meta">@NonNull</span> ObservableEmitter&lt;Integer&gt; emitter)</span> <span class="keyword">throws</span> Throwable </span>&#123;</span><br><span class="line">                    emitter.onNext(<span class="number">40</span>);</span><br><span class="line">                    emitter.onComplete();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;)</span><br><span class="line">    ).subscribe(<span class="keyword">new</span> Consumer&lt;Integer&gt;() &#123;</span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">accept</span><span class="params">(Integer pInteger)</span> <span class="keyword">throws</span> Throwable </span>&#123;</span><br><span class="line">            Log.d(<span class="string">&quot;合并型操作符 concat &quot;</span>, <span class="string">&quot;accept: ----&gt; &quot;</span> + pInteger);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line"><span class="comment">//        04-05 21:10:42.198 5139-5139/com.example.learnrxjava D/合并型操作符 concat: accept: ----&gt; 10</span></span><br><span class="line"><span class="comment">//        04-05 21:10:42.198 5139-5139/com.example.learnrxjava D/合并型操作符 concat: accept: ----&gt; 20</span></span><br><span class="line"><span class="comment">//        04-05 21:10:42.198 5139-5139/com.example.learnrxjava D/合并型操作符 concat: accept: ----&gt; 30</span></span><br><span class="line"><span class="comment">//        04-05 21:10:42.198 5139-5139/com.example.learnrxjava D/合并型操作符 concat: accept: ----&gt; 40</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>合并型操作符 <code>concat()</code> 是把被观察者按顺序执行的，但最多只能同时四个被观察者进行合并。</p>
+<h5 id="merge"><a href="#merge" class="headerlink" title="# merge()"></a># merge()</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">learnRxMerge</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        </span><br><span class="line">    <span class="meta">@NonNull</span> Observable&lt;Long&gt; lObservable_1 = Observable.intervalRange(<span class="number">1</span>, <span class="number">5</span>, <span class="number">1</span>, <span class="number">2</span>, TimeUnit.SECONDS);</span><br><span class="line"></span><br><span class="line">    <span class="meta">@NonNull</span> Observable&lt;Long&gt; lObservable_2 = Observable.intervalRange(<span class="number">6</span>, <span class="number">5</span>, <span class="number">1</span>, <span class="number">2</span>, TimeUnit.SECONDS);</span><br><span class="line"></span><br><span class="line">    <span class="meta">@NonNull</span> Observable&lt;Long&gt; lObservable_3 = Observable.intervalRange(<span class="number">11</span>, <span class="number">5</span>, <span class="number">1</span>, <span class="number">2</span>, TimeUnit.SECONDS);</span><br><span class="line"></span><br><span class="line">    Observable.merge(lObservable_1, lObservable_2, lObservable_3)</span><br><span class="line">            .subscribe(<span class="keyword">new</span> Consumer&lt;Long&gt;() &#123;</span><br><span class="line">                <span class="meta">@Override</span></span><br><span class="line">                <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">accept</span><span class="params">(Long pLong)</span> <span class="keyword">throws</span> Throwable </span>&#123;</span><br><span class="line">                    Log.d(<span class="string">&quot;合并型操作符 merge &quot;</span>, <span class="string">&quot;accept: ----&gt; &quot;</span> + pLong);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;);</span><br><span class="line"></span><br><span class="line"><span class="comment">//        04-05 21:25:52.151 10863-10912/com.example.learnrxjava D/合并型操作符 merge: accept: ----&gt; 1</span></span><br><span class="line"><span class="comment">//        04-05 21:25:52.154 10863-10914/com.example.learnrxjava D/合并型操作符 merge: accept: ----&gt; 11</span></span><br><span class="line"><span class="comment">//        04-05 21:25:52.155 10863-10913/com.example.learnrxjava D/合并型操作符 merge: accept: ----&gt; 6</span></span><br><span class="line"><span class="comment">//        04-05 21:25:54.148 10863-10912/com.example.learnrxjava D/合并型操作符 merge: accept: ----&gt; 2</span></span><br><span class="line"><span class="comment">//        04-05 21:25:54.149 10863-10913/com.example.learnrxjava D/合并型操作符 merge: accept: ----&gt; 7</span></span><br><span class="line"><span class="comment">//        04-05 21:25:54.149 10863-10914/com.example.learnrxjava D/合并型操作符 merge: accept: ----&gt; 12</span></span><br><span class="line"><span class="comment">//        04-05 21:25:56.148 10863-10912/com.example.learnrxjava D/合并型操作符 merge: accept: ----&gt; 3</span></span><br><span class="line"><span class="comment">//        04-05 21:25:56.148 10863-10913/com.example.learnrxjava D/合并型操作符 merge: accept: ----&gt; 8</span></span><br><span class="line"><span class="comment">//        04-05 21:25:56.149 10863-10914/com.example.learnrxjava D/合并型操作符 merge: accept: ----&gt; 13</span></span><br><span class="line"><span class="comment">//        04-05 21:25:58.148 10863-10912/com.example.learnrxjava D/合并型操作符 merge: accept: ----&gt; 4</span></span><br><span class="line"><span class="comment">//        04-05 21:25:58.149 10863-10913/com.example.learnrxjava D/合并型操作符 merge: accept: ----&gt; 9</span></span><br><span class="line"><span class="comment">//        04-05 21:25:58.149 10863-10914/com.example.learnrxjava D/合并型操作符 merge: accept: ----&gt; 14</span></span><br><span class="line"><span class="comment">//        04-05 21:26:00.148 10863-10912/com.example.learnrxjava D/合并型操作符 merge: accept: ----&gt; 5</span></span><br><span class="line"><span class="comment">//        04-05 21:26:00.149 10863-10913/com.example.learnrxjava D/合并型操作符 merge: accept: ----&gt; 10</span></span><br><span class="line"><span class="comment">//        04-05 21:26:00.150 10863-10914/com.example.learnrxjava D/合并型操作符 merge: accept: ----&gt; 15</span></span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>合并型操作符 <code>merge()</code> 和 <code>concat()</code> 一样，也是最多可以合并四个被观察者，但是被合并的被观察者发射的事件是并发发射的。</p>
+<h5 id="zip"><a href="#zip" class="headerlink" title="# zip()"></a># zip()</h5><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">learnRxZip</span><span class="params">()</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@NonNull</span> Observable&lt;String&gt; lStringObservable_1 = Observable.create(<span class="keyword">new</span> ObservableOnSubscribe&lt;String&gt;() &#123;</span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">subscribe</span><span class="params">(<span class="meta">@NonNull</span> ObservableEmitter&lt;String&gt; emitter)</span> <span class="keyword">throws</span> Throwable </span>&#123;</span><br><span class="line">            emitter.onNext(<span class="string">&quot;Android开发&quot;</span>);</span><br><span class="line">            emitter.onNext(<span class="string">&quot;Java开发&quot;</span>);</span><br><span class="line">            emitter.onNext(<span class="string">&quot;Web开发&quot;</span>);</span><br><span class="line">            emitter.onComplete();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">    <span class="meta">@NonNull</span> Observable&lt;String&gt; lStringObservable_2 = Observable.create(<span class="keyword">new</span> ObservableOnSubscribe&lt;String&gt;() &#123;</span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">subscribe</span><span class="params">(<span class="meta">@NonNull</span> ObservableEmitter&lt;String&gt; emitter)</span> <span class="keyword">throws</span> Throwable </span>&#123;</span><br><span class="line">            emitter.onNext(<span class="string">&quot;12K&quot;</span>);</span><br><span class="line">            emitter.onNext(<span class="string">&quot;13K&quot;</span>);</span><br><span class="line">            emitter.onNext(<span class="string">&quot;14K&quot;</span>);</span><br><span class="line">            <span class="comment">// 在 lStringObservable_1 没有职位与 15K 对应</span></span><br><span class="line">            emitter.onNext(<span class="string">&quot;15K&quot;</span>);</span><br><span class="line">            emitter.onComplete();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">    Observable.zip(lStringObservable_1, lStringObservable_2, <span class="keyword">new</span> BiFunction&lt;String, String, StringBuffer&gt;() &#123;</span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> StringBuffer <span class="title">apply</span><span class="params">(String pS, String pS2)</span> <span class="keyword">throws</span> Throwable </span>&#123;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">new</span> StringBuffer().append(<span class="string">&quot;职位: &quot;</span>).append(pS).append(<span class="string">&quot; -----&gt; &quot;</span>).append(<span class="string">&quot;工资：&quot;</span>).append(pS2);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;).subscribe(<span class="keyword">new</span> Consumer&lt;StringBuffer&gt;() &#123;</span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">accept</span><span class="params">(StringBuffer pStringBuffer)</span> <span class="keyword">throws</span> Throwable </span>&#123;</span><br><span class="line">            Log.d(<span class="string">&quot;合并型操作符 zip &quot;</span>, <span class="string">&quot;accept: ----&gt; &quot;</span> + pStringBuffer.toString());</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line"><span class="comment">//        04-05 21:38:03.910 14403-14403/com.example.learnrxjava D/合并型操作符 zip: accept: ----&gt; 职位: Android开发 -----&gt; 工资：12K</span></span><br><span class="line"><span class="comment">//        04-05 21:38:03.910 14403-14403/com.example.learnrxjava D/合并型操作符 zip: accept: ----&gt; 职位: Java开发 -----&gt; 工资：13K</span></span><br><span class="line"><span class="comment">//        04-05 21:38:03.910 14403-14403/com.example.learnrxjava D/合并型操作符 zip: accept: ----&gt; 职位: Web开发 -----&gt; 工资：14K</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>合并型操作符 <code>zip()</code> 最多可以同时合并 9 个被观察者，但每个被观察者里面的事件需要数量相同，换而言之，就是需要被观察者里面的事件一一对应。</p>
+<p><img src="http://baihonghua.cn/%E5%BE%AE%E4%BF%A1%E5%85%AC%E4%BC%97%E5%8F%B7%E4%BA%8C%E7%BB%B4%E7%A0%81.png"></p>
+
+      
+    </div>
+
+    <div>
+	
+	
+<div class="my_post_copyright">
+  <script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+  <!-- JS库 sweetalert 可修改路径 -->
+  <script type="text/javascript" src="http://jslibs.wuxubj.cn/sweetalert_mini/jquery-1.7.1.min.js"></script>
+  <script src="http://jslibs.wuxubj.cn/sweetalert_mini/sweetalert.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="http://jslibs.wuxubj.cn/sweetalert_mini/sweetalert.mini.css">
+  <p><span>本文标题:</span><a href="/2020/04/09/RxJava%E7%B3%BB%E7%B1%BB-%E5%90%88%E5%B9%B6%E5%9E%8B%E6%93%8D%E4%BD%9C%E7%AC%A6%E5%AE%9E%E6%88%98/">RxJava系类-合并型操作符实战</a></p>
+  <p><span>文章作者:</span><a href="/" title="访问  的个人博客"></a></p>
+  <p><span>发布时间:</span>2020年04月09日 - 09:04</p>
+  <p><span>最后更新:</span>2021年06月20日 - 19:06</p>
+  <p><span>原始链接:</span><a href="/2020/04/09/RxJava%E7%B3%BB%E7%B1%BB-%E5%90%88%E5%B9%B6%E5%9E%8B%E6%93%8D%E4%BD%9C%E7%AC%A6%E5%AE%9E%E6%88%98/" title="RxJava系类-合并型操作符实战">https://hndroid.github.io/2020/04/09/RxJava%E7%B3%BB%E7%B1%BB-%E5%90%88%E5%B9%B6%E5%9E%8B%E6%93%8D%E4%BD%9C%E7%AC%A6%E5%AE%9E%E6%88%98/</a>
+    <span class="copy-path"  title="点击复制文章链接"><i class="fa fa-clipboard" data-clipboard-text="https://hndroid.github.io/2020/04/09/RxJava%E7%B3%BB%E7%B1%BB-%E5%90%88%E5%B9%B6%E5%9E%8B%E6%93%8D%E4%BD%9C%E7%AC%A6%E5%AE%9E%E6%88%98/"  aria-label="复制成功！"></i></span>
+  </p>
+  <p><span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" title="Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)">署名-非商业性使用-禁止演绎 4.0 国际</a> 转载请保留原文链接及作者。</p>  
+</div>
+<script> 
+    var clipboard = new Clipboard('.fa-clipboard');
+    clipboard.on('success', $(function(){
+      $(".fa-clipboard").click(function(){
+        swal({   
+          title: "",   
+          text: '复制成功',   
+          html: false,
+          timer: 500,   
+          showConfirmButton: false
+        });
+      });
+    }));  
+</script>
+
+	
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/RxJava/" rel="tag"># RxJava</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/04/09/RxJava%E7%B3%BB%E5%88%97-%E6%9D%A1%E4%BB%B6%E5%9E%8B%E6%93%8D%E4%BD%9C%E7%AC%A6%E5%AE%9E%E6%88%98/" rel="next" title="RxJava系列-条件型操作符实战">
+                <i class="fa fa-chevron-left"></i> RxJava系列-条件型操作符实战
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2020/04/10/%E8%81%8A%E4%B8%80%E8%81%8AJavaPoet%E6%8A%80%E6%9C%AF/" rel="prev" title="聊一聊JavaPoet技术">
+                聊一聊JavaPoet技术 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.jpg"
+               alt="" />
+          <p class="site-author-name" itemprop="name"></p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">33</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">16</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">7</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-5"><a class="nav-link" href="#startWith"><span class="nav-number">1.</span> <span class="nav-text"># startWith()</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#concatWith"><span class="nav-number">2.</span> <span class="nav-text"># concatWith()</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#concat"><span class="nav-number">3.</span> <span class="nav-text"># concat()</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#merge"><span class="nav-number">4.</span> <span class="nav-text"># merge()</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#zip"><span class="nav-number">5.</span> <span class="nav-text"># zip()</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2017 - 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <!--<i class="fa fa-heart"></i>-->
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Bai HongHua</span>
+</div>
+
+
+<div class="powered-by">
+  <span>Powered by </span>
+  <span class="author" itemprop="copyrightHolder">Bai HongHua</span>
+</div>
+
+<div class="theme-info">
+  <span>Thanks For Hexo and NexT.Mist</span>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+  
+  <script type="text/javascript" src="true"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

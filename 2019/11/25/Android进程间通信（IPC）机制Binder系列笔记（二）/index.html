@@ -1,0 +1,841 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Android," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Bai HongHua" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="Binder 在不同的角度上的定义 从设备的角度来说，Binder 是一种虚拟的物理设备驱动，位于 &#x2F;dev&#x2F;binder 目录下； 从 Android 的代码上来说，Binder 是 Android 中的一个类，实现了 IBinder 接口； 从 IPC 角度来说，Binder 是 Android 中的的一种跨进程的通信方式，在 Linux 系统上没有； 从Android Framework 角">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android进程间通信（IPC）机制Binder系列笔记（二）">
+<meta property="og:url" content="https://hndroid.github.io/2019/11/25/Android%E8%BF%9B%E7%A8%8B%E9%97%B4%E9%80%9A%E4%BF%A1%EF%BC%88IPC%EF%BC%89%E6%9C%BA%E5%88%B6Binder%E7%B3%BB%E5%88%97%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%8C%EF%BC%89/index.html">
+<meta property="og:site_name" content="Bai HongHua">
+<meta property="og:description" content="Binder 在不同的角度上的定义 从设备的角度来说，Binder 是一种虚拟的物理设备驱动，位于 &#x2F;dev&#x2F;binder 目录下； 从 Android 的代码上来说，Binder 是 Android 中的一个类，实现了 IBinder 接口； 从 IPC 角度来说，Binder 是 Android 中的的一种跨进程的通信方式，在 Linux 系统上没有； 从Android Framework 角">
+<meta property="og:locale">
+<meta property="article:published_time" content="2019-11-25T03:38:37.000Z">
+<meta property="article:modified_time" content="2021-06-20T11:52:16.128Z">
+<meta property="article:author" content="Bai HongHua">
+<meta property="article:tag" content="Android">
+<meta name="twitter:card" content="summary">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://hndroid.github.io/2019/11/25/Android进程间通信（IPC）机制Binder系列笔记（二）/"/>
+
+
+
+
+
+  <title> Android进程间通信（IPC）机制Binder系列笔记（二） | Bai HongHua </title>
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Bai HongHua</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th-list"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://hndroid.github.io/2019/11/25/Android%E8%BF%9B%E7%A8%8B%E9%97%B4%E9%80%9A%E4%BF%A1%EF%BC%88IPC%EF%BC%89%E6%9C%BA%E5%88%B6Binder%E7%B3%BB%E5%88%97%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%8C%EF%BC%89/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Bai HongHua">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Android进程间通信（IPC）机制Binder系列笔记（二）
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-11-25T11:38:37+08:00">
+                2019-11-25
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Android%E8%BF%9B%E9%98%B6/" itemprop="url" rel="index">
+                    <span itemprop="name">Android进阶</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+	  
+	    <span>&nbsp; | &nbsp;
+	    <span id="busuanzi_value_page_pv" ></span>次阅读
+	    </span>    
+	  
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h4 id="Binder-在不同的角度上的定义"><a href="#Binder-在不同的角度上的定义" class="headerlink" title="Binder 在不同的角度上的定义"></a>Binder 在不同的角度上的定义</h4><ul>
+<li>从设备的角度来说，Binder 是一种虚拟的物理设备驱动，位于 /dev/binder 目录下；</li>
+<li>从 Android 的代码上来说，Binder 是 Android 中的一个类，实现了 IBinder 接口；</li>
+<li>从 IPC 角度来说，Binder 是 Android 中的的一种跨进程的通信方式，在 Linux 系统上没有；</li>
+<li>从Android Framework 角度来说，Binder 是 ServiceManager 连接各种 Manager 和相应的 ManagerService 的桥梁；</li>
+<li>从 Android 应用层来说，Binder 是 client 和 service 进行通信的媒介，当 bindService() 的时候，service端会返回一个包含 service 端业务调用的 Binder 对象，通过这个 Binder 对象，client 端就可以获取到 service 端提供的服务或者数据了；</li>
+</ul>
+<span id="more"></span>
+
+<h4 id="Android-采用-Binder-的原因"><a href="#Android-采用-Binder-的原因" class="headerlink" title="Android 采用 Binder 的原因"></a>Android 采用 Binder 的原因</h4><blockquote>
+<p>在讨论 Android 采用 Binder 的原因之前，需要知道为什么会出现 IPC/RPC 的通信方式</p>
+</blockquote>
+<h5 id="进程隔离"><a href="#进程隔离" class="headerlink" title="进程隔离"></a>进程隔离</h5><blockquote>
+<p>进程隔离是为了保护操作系统中进程中进程互不干扰而设计的一组不同硬件而软件的技术。这个技术是为了避免进程 A 写入进程 B 的情况发生的。进程的隔离实现，使用了虚拟地址的空间。进程 A 的虚拟地址和进程 B 的虚拟地址不同，这是为了防止进程 A 将数据信息写入进程 B。</p>
+</blockquote>
+<p>这也就意味着，进程中的数据是不共享的，A 进程无法直接访问到 B 进程的数据，以此来保证数据的安全。</p>
+<p>在进程隔离的系统中，两个不同的进程需要进行通信，就必须通过 IPC 来实现。</p>
+<p>Android 是基于 Linux 系统上的，理论上应当采用 Linux 系统的 IPC 通信方式。Linux 系统中的 IPC 方式共有 5 中，大体划分为三种 socket、管道、共享内存。而 Android 并没有采用 Linux 中的 IPC 方式，而采用称为 Binder 的 IPC 方式。</p>
+<p>Binder 是一种基于 Client-Service 通行模式的通信方式，传输过程只需要一次拷贝，可以为发送方添加 UID/PID 标记，支持实名 Binder 和匿名 Binder，安全性高；</p>
+<p>下表描述 Linux 中的 IPC 的特性，来与 Android 中的 Binder 对比，以解析采用 Binder 的原因：</p>
+<table>
+<thead>
+<tr>
+<th align="center">特性</th>
+<th align="left"></th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">可靠性</td>
+<td align="left">Android 中希望得到的是一种 Client-Service 的通信方式，而 Linux 中符合这种通信方式的只有 Socket。虽然可以在其他四种方式的基础上添加协议来控制，但这样会增加系统的复杂性，在手机这种条件复杂、资源稀缺的环境下，也难以保证可靠；</td>
+</tr>
+<tr>
+<td align="center">传输性能</td>
+<td align="left">虽然 Socket 是一个数据传输接口，但是性能开销大，适合网络传输、大文件传输这种重量级的传输环境；消息队列和管道采用的是存储-转发的形式，先把需要转发的数据拷贝到新开辟的内存缓存，然后再从内存缓存中把数据拷贝到接收方，经历了两次数据拷贝；共享内存虽然不用经过数据拷贝，多个进程共用一块内存，但是对于 Android 这种多应用进程、安全保密性高的场合，共享内存明显不合适；</td>
+</tr>
+<tr>
+<td align="center">安全性</td>
+<td align="left">Android 作为一个多应用的系统，各种应用的来源不同，确保各种应用的安全性是非常重要的。Linux 中传统的 IPC 完全没有任何的安全措施，完全依赖上层的协议来确保，具体有两种体现：第一，传统的 IPC 接收方无法获知发送方可靠的 UID/PID（用户ID/进程IP），从而无法鉴别对方的身份，使用传统的 IPC 只能由用户填入 UID/PID ，但这样不可靠，容易被恶意的程序利用；第二，传统IPC的访问接入点是开放的，无法建立私有通信，只要知道这些接入点的程序都可以和对端建立连接，这样无法阻止恶意程序通过猜测接收方的地址获得连接。</td>
+</tr>
+</tbody></table>
+<h4 id="Binder-的组成"><a href="#Binder-的组成" class="headerlink" title="Binder 的组成"></a>Binder 的组成</h4><p>Binder 有四部分组成：Binder 客户端、Binder 服务端、Binder 驱动、服务登记查询模块。</p>
+<table>
+<thead>
+<tr>
+<th align="center">Binder 的组成</th>
+<th align="center"></th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">Binder 客户端</td>
+<td align="center">Binder 客户端是想要使用服务的进程；（或者说是发送数据的进程）</td>
+</tr>
+<tr>
+<td align="center">Binder 服务端</td>
+<td align="center">Binder 服务端是实际提供服务的进程；</td>
+</tr>
+<tr>
+<td align="center">Binder 驱动</td>
+<td align="center">客户端拿到服务端的进程的一个 Binder 的对象引用，通过这个引用，直接调用对象的方法获取结果。在这个引用对象执行时，它是先将方法调用的请求转给 Binder 驱动；然后 Binder 驱动再将请求转给服务端进程；服务端进程收到请求后，调用服务端”真正”的对象来执行所要调用的方法；得出结果后，将结果发给 Binder 驱动；Binder 驱动再将结果发给我们的客户端；最终，我们在客户端进程的调用就有了返回值；</td>
+</tr>
+<tr>
+<td align="center">Service Manager</td>
+<td align="center">统一管理服务端的服务的管理器；首先服务端的 Service 启动时都需要在 Service Manager 登记注册，来告诉系统的其他进程那些服务可以提供服务，当客户端进程需要这个服务的时候，就去这个登记的地方通过查询来找到这个对象；</td>
+</tr>
+</tbody></table>
+<p>上面表格总结的流程：</p>
+<ul>
+<li>客户端通过 Binder 引用拿到 Proxy 对象引用；（Proxy 是 client 用来发送数据的）；</li>
+<li>客户端通过调用 Proxy 对象来调用服务端的方法；（实际这调用的过程中是通过 Binder 驱动来调用，然后通过 Binder 驱动返回结果）;</li>
+</ul>
+<h4 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h4><p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/itgungnir/p/6640120.html">【Android - IPC】之Binder机制简介</a></p>
+
+      
+    </div>
+
+    <div>
+	
+	
+<div class="my_post_copyright">
+  <script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+  <!-- JS库 sweetalert 可修改路径 -->
+  <script type="text/javascript" src="http://jslibs.wuxubj.cn/sweetalert_mini/jquery-1.7.1.min.js"></script>
+  <script src="http://jslibs.wuxubj.cn/sweetalert_mini/sweetalert.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="http://jslibs.wuxubj.cn/sweetalert_mini/sweetalert.mini.css">
+  <p><span>本文标题:</span><a href="/2019/11/25/Android%E8%BF%9B%E7%A8%8B%E9%97%B4%E9%80%9A%E4%BF%A1%EF%BC%88IPC%EF%BC%89%E6%9C%BA%E5%88%B6Binder%E7%B3%BB%E5%88%97%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%8C%EF%BC%89/">Android进程间通信（IPC）机制Binder系列笔记（二）</a></p>
+  <p><span>文章作者:</span><a href="/" title="访问  的个人博客"></a></p>
+  <p><span>发布时间:</span>2019年11月25日 - 11:11</p>
+  <p><span>最后更新:</span>2021年06月20日 - 19:06</p>
+  <p><span>原始链接:</span><a href="/2019/11/25/Android%E8%BF%9B%E7%A8%8B%E9%97%B4%E9%80%9A%E4%BF%A1%EF%BC%88IPC%EF%BC%89%E6%9C%BA%E5%88%B6Binder%E7%B3%BB%E5%88%97%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%8C%EF%BC%89/" title="Android进程间通信（IPC）机制Binder系列笔记（二）">https://hndroid.github.io/2019/11/25/Android%E8%BF%9B%E7%A8%8B%E9%97%B4%E9%80%9A%E4%BF%A1%EF%BC%88IPC%EF%BC%89%E6%9C%BA%E5%88%B6Binder%E7%B3%BB%E5%88%97%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%8C%EF%BC%89/</a>
+    <span class="copy-path"  title="点击复制文章链接"><i class="fa fa-clipboard" data-clipboard-text="https://hndroid.github.io/2019/11/25/Android%E8%BF%9B%E7%A8%8B%E9%97%B4%E9%80%9A%E4%BF%A1%EF%BC%88IPC%EF%BC%89%E6%9C%BA%E5%88%B6Binder%E7%B3%BB%E5%88%97%E7%AC%94%E8%AE%B0%EF%BC%88%E4%BA%8C%EF%BC%89/"  aria-label="复制成功！"></i></span>
+  </p>
+  <p><span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" title="Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)">署名-非商业性使用-禁止演绎 4.0 国际</a> 转载请保留原文链接及作者。</p>  
+</div>
+<script> 
+    var clipboard = new Clipboard('.fa-clipboard');
+    clipboard.on('success', $(function(){
+      $(".fa-clipboard").click(function(){
+        swal({   
+          title: "",   
+          text: '复制成功',   
+          html: false,
+          timer: 500,   
+          showConfirmButton: false
+        });
+      });
+    }));  
+</script>
+
+	
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Android/" rel="tag"># Android</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/11/25/Android%E8%BF%9B%E7%A8%8B%E9%97%B4%E9%80%9A%E4%BF%A1%EF%BC%88IPC%EF%BC%89%E6%9C%BA%E5%88%B6Binder%E7%B3%BB%E5%88%97%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%80%EF%BC%89/" rel="next" title="Android进程间通信（IPC）机制Binder系列笔记（一）">
+                <i class="fa fa-chevron-left"></i> Android进程间通信（IPC）机制Binder系列笔记（一）
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/11/25/Android%E8%BF%9B%E7%A8%8B%E9%97%B4%E9%80%9A%E4%BF%A1%EF%BC%88IPC%EF%BC%89%E6%9C%BA%E5%88%B6Binder%E7%B3%BB%E5%88%97%E7%AC%94%E8%AE%B0%EF%BC%88%E4%B8%89%EF%BC%89/" rel="prev" title="Android进程间通信（IPC）机制Binder系列笔记（三）">
+                Android进程间通信（IPC）机制Binder系列笔记（三） <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.jpg"
+               alt="" />
+          <p class="site-author-name" itemprop="name"></p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">33</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">16</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">7</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#Binder-%E5%9C%A8%E4%B8%8D%E5%90%8C%E7%9A%84%E8%A7%92%E5%BA%A6%E4%B8%8A%E7%9A%84%E5%AE%9A%E4%B9%89"><span class="nav-number">1.</span> <span class="nav-text">Binder 在不同的角度上的定义</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Android-%E9%87%87%E7%94%A8-Binder-%E7%9A%84%E5%8E%9F%E5%9B%A0"><span class="nav-number">2.</span> <span class="nav-text">Android 采用 Binder 的原因</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E8%BF%9B%E7%A8%8B%E9%9A%94%E7%A6%BB"><span class="nav-number">2.1.</span> <span class="nav-text">进程隔离</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Binder-%E7%9A%84%E7%BB%84%E6%88%90"><span class="nav-number">3.</span> <span class="nav-text">Binder 的组成</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="nav-number">4.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2017 - 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <!--<i class="fa fa-heart"></i>-->
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Bai HongHua</span>
+</div>
+
+
+<div class="powered-by">
+  <span>Powered by </span>
+  <span class="author" itemprop="copyrightHolder">Bai HongHua</span>
+</div>
+
+<div class="theme-info">
+  <span>Thanks For Hexo and NexT.Mist</span>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+  
+  <script type="text/javascript" src="true"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

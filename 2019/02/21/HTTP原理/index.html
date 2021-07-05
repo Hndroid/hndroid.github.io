@@ -1,0 +1,903 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="网络原理," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Bai HongHua" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="前言HTTP（HyperText Transfer Protocol，超文本传输协议）是 TCP&#x2F;IP 四层模型中的应用层的其中一种协议。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="HTTP原理">
+<meta property="og:url" content="https://hndroid.github.io/2019/02/21/HTTP%E5%8E%9F%E7%90%86/index.html">
+<meta property="og:site_name" content="Bai HongHua">
+<meta property="og:description" content="前言HTTP（HyperText Transfer Protocol，超文本传输协议）是 TCP&#x2F;IP 四层模型中的应用层的其中一种协议。">
+<meta property="og:locale">
+<meta property="og:image" content="http://baihonghua.cn/%E8%AF%A6%E7%BB%86%E5%9B%9B%E5%B1%82%E6%A8%A1%E5%9E%8B.png">
+<meta property="og:image" content="http://baihonghua.cn/20160920172520899.png">
+<meta property="og:image" content="http://baihonghua.cn/%E8%AF%B7%E6%B1%82%E5%92%8C%E5%93%8D%E5%BA%94%E6%8A%A5%E6%96%87.png">
+<meta property="article:published_time" content="2019-02-21T09:36:42.000Z">
+<meta property="article:modified_time" content="2021-06-20T11:52:16.129Z">
+<meta property="article:author" content="Bai HongHua">
+<meta property="article:tag" content="网络原理">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://baihonghua.cn/%E8%AF%A6%E7%BB%86%E5%9B%9B%E5%B1%82%E6%A8%A1%E5%9E%8B.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://hndroid.github.io/2019/02/21/HTTP原理/"/>
+
+
+
+
+
+  <title> HTTP原理 | Bai HongHua </title>
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Bai HongHua</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th-list"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://hndroid.github.io/2019/02/21/HTTP%E5%8E%9F%E7%90%86/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Bai HongHua">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                HTTP原理
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-02-21T17:36:42+08:00">
+                2019-02-21
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/HTTP%E7%B3%BB%E5%88%97/" itemprop="url" rel="index">
+                    <span itemprop="name">HTTP系列</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+	  
+	    <span>&nbsp; | &nbsp;
+	    <span id="busuanzi_value_page_pv" ></span>次阅读
+	    </span>    
+	  
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h4 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h4><p>HTTP（HyperText Transfer Protocol，超文本传输协议）是 TCP/IP 四层模型中的应用层的其中一种协议。</p>
+<span id="more"></span>
+
+<h4 id="HTTP-的历史"><a href="#HTTP-的历史" class="headerlink" title="HTTP 的历史"></a>HTTP 的历史</h4><ul>
+<li>HTTP 于 1990 年问世，被称为 HTTP/0.9；</li>
+<li>HTTP/1.0 作为标准被公布是在 1996 年的 5 月，该标准至今仍被广泛使用在服务器端，记载于 RFC19945；</li>
+<li>HTTP/1.1 是目前主流的 HTTP 协议版本，当初标准是 RFC2068 –&gt; RFC2616;</li>
+</ul>
+<h4 id="网络基础-TCP-IP"><a href="#网络基础-TCP-IP" class="headerlink" title="网络基础 TCP/IP"></a>网络基础 TCP/IP</h4><p>TCP/IP是互联网相关的各类协议族的总称。通常使用的网络是在 TCP/IP 协议族的基础上面运作起来的，而 HTTP 是属于它内部的一个子集。TCP/IP 协议族按层次分层，被约定分为四层：应用层、传输层、网络层、数据链路层；TCP/IP 这样的分层是有好处的，试想如果互联网只是又一个协议组成，当该协议的某部分的设计需要变动的时候，则是牵一发而动全身，需要把整个协议变动，这样对于实际而言，是比较低效率的；而当把协议按一定的条件分层以后，下一层只需要向上一层暴露接口，而具体的实现细节则是隐藏起来，而当需要改某部分的细节实现的时候，只需要改动被隐藏的细节，而对于其他的分层是没有影响的。而且层次化以后，设计也变得相对简单起来。</p>
+<blockquote>
+<p>应用层</p>
+</blockquote>
+<blockquote>
+<blockquote>
+<p>该层的服务协议主要包括 FTP（File Transfer Protocol，文件传输协议）、DNS（domain Name System,域名系统），当然，HTTP 协议也是位于该层；</p>
+</blockquote>
+</blockquote>
+<blockquote>
+<p>传输层</p>
+</blockquote>
+<blockquote>
+<blockquote>
+<p>应用层的下一层是传输层，提供处于网络连接中的两台计算机之间的数据传输。该层代表的协议主要有两个：TCP（Transmission Control Protocol，传输控制协议）和 UDP（User Data Protocol，用户数据报协议）</p>
+</blockquote>
+</blockquote>
+<blockquote>
+<p>网络层</p>
+</blockquote>
+<blockquote>
+<blockquote>
+<p>网络层用来处理网络上面流动的数据包。数据包是网络传输的最小单位，该层规定了通过怎样的路径（所谓的传输路线）到达对方的计算机，并把数据包传输送给对方。（与对方计算机之间通过多台计算机或网络设备进行传输的时候，网络层所起的作用就是在众多的传输选项中，选择一条传输线路）</p>
+</blockquote>
+</blockquote>
+<blockquote>
+<p>链路层</p>
+</blockquote>
+<blockquote>
+<blockquote>
+<p>用来处理连接网络的硬件部分。包括各种操作系统、硬件的设备驱动、NIC（Network Interface Card,网络适配器），及光纤等物理设备可见部分。</p>
+</blockquote>
+</blockquote>
+<p>利用 TCP/IP 协议族进行网络通信时，会通过分层顺序与对方进行通信，发送端从应用层往下走，接受端则从链路层往上走。与此同时，在发送端数据往下下发的时候，会被每一层封装对应的头部，在接受端则分拆每一层的头部。</p>
+<p><img src="http://baihonghua.cn/%E8%AF%A6%E7%BB%86%E5%9B%9B%E5%B1%82%E6%A8%A1%E5%9E%8B.png"></p>
+<h4 id="负责传输的-IP-协议"><a href="#负责传输的-IP-协议" class="headerlink" title="负责传输的 IP 协议"></a>负责传输的 IP 协议</h4><p>IP（Internet Protocol，网际协议）作用是把各种数据包传输给对方。而需要确实把数据包发送给对方，则需要明确对方的 IP 地址和 MAC 地址。一般来说，IP 地址是可变的，而 MAC 地址基本不会改变。<code>IP 间的通信依赖 MAC 地址。</code> 在网络上，通信的双方在同一局域网（LAN）内的情况是比较少的，通常需要经过多台计算机和网络设备中转才可以连接到对方。而在经行中转的时候，会利用下一站的 MAC 地址来搜索下一个中转站的 IP，这里，会利用 ARP（Adress Resolution Protocol，地址解析协议），根据目的 IP 地址，反查出目计算机的 MAC 地址。当然，ARP 协议是解决同一个局域网的上的主机或者路由器的 IP 地址和硬件地址的映射问题，无法解析出另一个局域网的上的主机或者路由器的 MAC 地址。实际上，没有人可以全面掌握互联网中的传输情况，在到达通信目标前的中转过程中，计算机和路由器等网络只能获取很粗略的传输路线。</p>
+<h4 id="确保可靠性的-TCP-协议"><a href="#确保可靠性的-TCP-协议" class="headerlink" title="确保可靠性的 TCP 协议"></a>确保可靠性的 TCP 协议</h4><p>TCP 协议位于传输层，提供可靠的字节流服务。所谓的字节流服务，是指虽然应用程序和 TCP 的交互是一次一个数据块（大小不等），但 TCP 把应用程序交下来的数据仅仅看成是一连串的无结构的字节流（<code>“流”是指流入到进程或者从进程流出的字节序列</code>）。而可靠传输则是，TCP 能够把数据准确可靠地传给对方。简而言之，TCP 协议为了把大容量的数据方便传输，就把数据分割看成无结构的字节流，并且 TCP 协议能够确认数据最终是否到达对方。</p>
+<ul>
+<li><p>TCP 协议的三次握手</p>
+<ul>
+<li>TCP 在双方进行通信前，首先需要确保已经建立链接，TCP 采用了三次握手策略。用 TCP 协议把数据包发送出去以后，TCP 不会对发送出去的情况置之不理，它一定会向对方确认是否成功到达。握手的过程中使用两个标志（flag）：SYN（synchronize，同步）和 ACK（acknowledgement）；</li>
+<li>发送端首先会发送一个带 SYN 标志的数据包给对方。接收端收到该标志以后，回传一个带 SYN/ACK 标志的数据包给发送方以表示确认信息，最后，发送端在回传一个带 ACK 的标志表示握手结束；</li>
+<li>如果该过程因异常中断，TCP 还会再次以相同的顺序发送相同的数据包；</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li><p>TCP 协议的四次挥手</p>
+<ul>
+<li>TCP 在双方通信结束以后，发送端和接收端都处于 ESTABLISHED 状态。这时 TCP 会采用四次挥手策略，在挥手的过程中用到的两个标志：FIN（finish）和 ACK；</li>
+<li>发送端首先会发送一个带 FIN 标志的数据包给对方，这是发送端会处于一个 FIN-WAIT-1 的状态。接收端收到该标志以后，回传一个 ACK 标志的数据包给对方，并且这时接收端会处于 CLOSE-WAIT 的状态，这时接收端还是可以往发送端发送数据。当发送端接收到接收端回传的 ACK 标志的数据包的时候，这时发送端会处于一个 FIN-WAIT-2 的状态。当接收端没有数据需要发送给发送端的时候，接收端会再次发送一个 FIN 标志的数据包给发送端，这时接收端就会处于 LAST-ACK 的状态。当发送端收到接收端回传的 FIN 标志以后，发送端必须对此进行确认应答，在确认报文段把带 ACK 的报文发送给接收端，然后接收端接收到该报文以后，便处于关闭的状态，而发送端则需要继续保持一个监听的状态在一段时间内；</li>
+</ul>
+</li>
+</ul>
+<p><img src="http://baihonghua.cn/20160920172520899.png"></p>
+<h4 id="超文本传送协议-HTTP"><a href="#超文本传送协议-HTTP" class="headerlink" title="超文本传送协议 HTTP"></a>超文本传送协议 HTTP</h4><p>HTTP 使用了面向连接的 TCP 作为传输层协议，保证了数据的可靠传输。HTTP 不必考虑数据在传输的过程中被丢弃又怎样重传。但是，HTTP 协议本身是无连接的，也就是说，虽然 HTTP 使用了 TCP 连接，但是通信的双方在交换 HTTP 报文之前，是不需要先建立 HTTP 连接的。</p>
+<ul>
+<li>HTTP 的报文结构（略）</li>
+<li>HTTP 的状态码（状态码都是三位数字的，分为 5 大类，大概有 33 种。这五种类型的状态码可以归纳为以下）<ul>
+<li>1XX 表示通知信息。如请求收到了或者正在处理；</li>
+<li>2XX 表示成功。如接受或知道了；</li>
+<li>3XX 表示重定向。如完成请求还需要采取进一步的行动；</li>
+<li>4XX 表示客户端的错误。例如请求的语法有误或者不能完成；</li>
+<li>5XX 表示服务器的错误。如服务器失效无法完成；</li>
+</ul>
+</li>
+<li>HTTP 的方法<ul>
+<li>GET 表示获取资源；</li>
+<li>POST 表示传输实体主体；</li>
+<li>PUT 表示传输文件；</li>
+<li>HEAD 表示获得报文首部；</li>
+<li>DELETE 表示删除文件；</li>
+<li>OPTIONS 表示询问支持的方法；</li>
+<li>TRACE 表示追踪路径；</li>
+<li>CONNECT 表示要求用隧道协议连接代理；</li>
+</ul>
+</li>
+</ul>
+<h4 id="HTTP-是不保存状态的协议"><a href="#HTTP-是不保存状态的协议" class="headerlink" title="HTTP 是不保存状态的协议"></a>HTTP 是不保存状态的协议</h4><p>HTTP 是一种不保存状态，即无状态的协议。HTTP 协议自身不对请求和响应之间的通信状态经行保存。使用 HTTP 协议，每当有新的请求发送的时候，就会有新的响应产生。协议本身不保存之前一切的请求或者响应报文的信息。而这样子做的好处是为了更加快地处理大量的事务，确保协议的可伸缩性；HTTP/1.1 虽然是无状态协议，但为了实现期望的保持状态功能，于是引入了 Cookie 技术。</p>
+<h4 id="HTTP-持久化连接节省通信量"><a href="#HTTP-持久化连接节省通信量" class="headerlink" title="HTTP 持久化连接节省通信量"></a>HTTP 持久化连接节省通信量</h4><p>在 HTTP 协议的初始化版本中，每进行一次 HTTP 通信就要断开一次 TCP 连接。一般来说，比如一张网页往往会包含多中资源请求，例如文字、图片、音视频等…每一次请求都造成 TCP 的连接断开，这样就会增加通信量的开销；为了解决 HTTP 每一次请求都造成 TCP 的连接断开的问题，HTTP/1.1 和部分的 HTTP/1.0 想出来持久化连接（HTTP Persistent Connections），也称为 HTTP keep-alive。持久化连接的特点是，只要 HTTP 的两端没有明确提出断开连接，则保持 TCP 连接状态；</p>
+<p>HTTP 的持久化连接的好处是，减少了 TCP 连接的重复建立和断开所造成的额外开销，减轻了服务器的负载。也因为这样，HTTP 的请求响应时间也为之减少，这样页面的显示的速度也就相应提高；</p>
+<h4 id="管线化"><a href="#管线化" class="headerlink" title="管线化"></a>管线化</h4><p>持久化连接使得多数请求以管线化方式发送得以实现。管线化是指，一个请求发送以后，不用等该请求的响应报文，就可以直接发送下一个请求报文。这样的意义也是减少 HTTP 的请求响应时间。</p>
+<h4 id="使用-Cookie-的状态管理"><a href="#使用-Cookie-的状态管理" class="headerlink" title="使用 Cookie 的状态管理"></a>使用 Cookie 的状态管理</h4><p>前面提到，HTTP 协议是不保存状态的，也就是不对请求和响应之间的通信状态经行保存。但很多业务是需要 HTTP 有保存状态的，如需要登录的网站的访问等。为了解决上述的矛盾，HTTP 引入了 Cookie 技术。Cookie 技术通过在请求和响应报文中写入 Cookie 信息来控制客户端的状态。</p>
+<h4 id="请求报文及响应报文的结构"><a href="#请求报文及响应报文的结构" class="headerlink" title="请求报文及响应报文的结构"></a>请求报文及响应报文的结构</h4><p><img src="http://baihonghua.cn/%E8%AF%B7%E6%B1%82%E5%92%8C%E5%93%8D%E5%BA%94%E6%8A%A5%E6%96%87.png"></p>
+<h4 id="压缩传输的内容编码"><a href="#压缩传输的内容编码" class="headerlink" title="压缩传输的内容编码"></a>压缩传输的内容编码</h4><p>HTTP 协议中有一种被称为内容编码的功能。内容编码指明应用在实体内容上的编码格式，并保持实体信息原样压缩。内容编码后的实体由客户端接收并负责解码。</p>
+<ul>
+<li>常用的内容编码格式：<ul>
+<li>gzip（GUN zip）</li>
+<li>compress（UNIX 系统的标准压缩）</li>
+<li>deflate（zlib）</li>
+<li>identity（不进行编码）</li>
+</ul>
+</li>
+</ul>
+<h4 id="分割发送的分块传输编码"><a href="#分割发送的分块传输编码" class="headerlink" title="分割发送的分块传输编码"></a>分割发送的分块传输编码</h4><p>在传输大容量的数据时，通过把数据分割成多块能够让浏览器逐步显示页面，这种把实体分块的功能称为分块传输编码（Chunked Transfer Coding）</p>
+<h4 id="状态码告知从服务器端返回的请求结果"><a href="#状态码告知从服务器端返回的请求结果" class="headerlink" title="状态码告知从服务器端返回的请求结果"></a>状态码告知从服务器端返回的请求结果</h4><ul>
+<li>2XX 响应结果表示请求被正常处理了。<ul>
+<li>200 OK 表示从客户端发来的请求在服务端被正常处理了；</li>
+<li>204 No Content 该状态码表示服务器接收的请求已经被成功处理，但在返回的响应报文中不含实体的主体部分；</li>
+<li>206 Partial Content 表示客户端要求服务端返回部分的资源信息。响应报文包含 Content-Range 指定范围的实体内容；</li>
+</ul>
+</li>
+<li>3XX 重定向<ul>
+<li>301 该状态码表示请求的资源已被分配了新的 URI；</li>
+<li>302 临时性重定向；</li>
+<li>303 See Other 该状态码表示由于请求对应的资源存在着另一个 URl，应使用 GET 方法定向获取请求的资源；</li>
+</ul>
+</li>
+<li>4XX 客户端错误<ul>
+<li>400 Bad Request 该状态码表示请求报文中存在语法错误；</li>
+<li>403 ForBidden 该状态码表明对请求资源的访问被服务器拒绝了；</li>
+<li>404 Not Found 该状态码表明服务器上无法找到请求的资源；</li>
+</ul>
+</li>
+<li>5XX 服务器错误<ul>
+<li>500 Internal Server Error  该状态码表示服务器端在执行请求时发生了错误；</li>
+<li>503 Service Unavailable 该状态码表明服务器暂时处于超负荷或正在经行停机维护；</li>
+</ul>
+</li>
+</ul>
+<h4 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h4><p>这一篇笔记主要是从 HTTP 原理的宏观主体的描述，没有更深细节去研究吧。emmmm….下一篇网络原理应该是关于 TCP/IP 的。</p>
+
+      
+    </div>
+
+    <div>
+	
+	
+<div class="my_post_copyright">
+  <script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
+
+  <!-- JS库 sweetalert 可修改路径 -->
+  <script type="text/javascript" src="http://jslibs.wuxubj.cn/sweetalert_mini/jquery-1.7.1.min.js"></script>
+  <script src="http://jslibs.wuxubj.cn/sweetalert_mini/sweetalert.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="http://jslibs.wuxubj.cn/sweetalert_mini/sweetalert.mini.css">
+  <p><span>本文标题:</span><a href="/2019/02/21/HTTP%E5%8E%9F%E7%90%86/">HTTP原理</a></p>
+  <p><span>文章作者:</span><a href="/" title="访问  的个人博客"></a></p>
+  <p><span>发布时间:</span>2019年02月21日 - 17:02</p>
+  <p><span>最后更新:</span>2021年06月20日 - 19:06</p>
+  <p><span>原始链接:</span><a href="/2019/02/21/HTTP%E5%8E%9F%E7%90%86/" title="HTTP原理">https://hndroid.github.io/2019/02/21/HTTP%E5%8E%9F%E7%90%86/</a>
+    <span class="copy-path"  title="点击复制文章链接"><i class="fa fa-clipboard" data-clipboard-text="https://hndroid.github.io/2019/02/21/HTTP%E5%8E%9F%E7%90%86/"  aria-label="复制成功！"></i></span>
+  </p>
+  <p><span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" title="Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)">署名-非商业性使用-禁止演绎 4.0 国际</a> 转载请保留原文链接及作者。</p>  
+</div>
+<script> 
+    var clipboard = new Clipboard('.fa-clipboard');
+    clipboard.on('success', $(function(){
+      $(".fa-clipboard").click(function(){
+        swal({   
+          title: "",   
+          text: '复制成功',   
+          html: false,
+          timer: 500,   
+          showConfirmButton: false
+        });
+      });
+    }));  
+</script>
+
+	
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/%E7%BD%91%E7%BB%9C%E5%8E%9F%E7%90%86/" rel="tag"># 网络原理</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/01/31/View%E4%BD%93%E7%B3%BB%EF%BC%88%E4%B8%80%EF%BC%89%EF%BC%9A-View%E4%BD%8D%E7%BD%AE%E5%8F%82%E6%95%B0/" rel="next" title="View体系（一）： View位置参数">
+                <i class="fa fa-chevron-left"></i> View体系（一）： View位置参数
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/02/25/Android%E7%BB%86%E8%8A%82%E7%9F%A5%E8%AF%86%E6%B1%87%E6%80%BB%E7%B3%BB%E5%88%97%EF%BC%88%E4%B8%80%EF%BC%89/" rel="prev" title="Android细节知识汇总系列（一）">
+                Android细节知识汇总系列（一） <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.jpg"
+               alt="" />
+          <p class="site-author-name" itemprop="name"></p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">33</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">16</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">7</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#HTTP-%E7%9A%84%E5%8E%86%E5%8F%B2"><span class="nav-number">2.</span> <span class="nav-text">HTTP 的历史</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%BD%91%E7%BB%9C%E5%9F%BA%E7%A1%80-TCP-IP"><span class="nav-number">3.</span> <span class="nav-text">网络基础 TCP&#x2F;IP</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%B4%9F%E8%B4%A3%E4%BC%A0%E8%BE%93%E7%9A%84-IP-%E5%8D%8F%E8%AE%AE"><span class="nav-number">4.</span> <span class="nav-text">负责传输的 IP 协议</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%A1%AE%E4%BF%9D%E5%8F%AF%E9%9D%A0%E6%80%A7%E7%9A%84-TCP-%E5%8D%8F%E8%AE%AE"><span class="nav-number">5.</span> <span class="nav-text">确保可靠性的 TCP 协议</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%B6%85%E6%96%87%E6%9C%AC%E4%BC%A0%E9%80%81%E5%8D%8F%E8%AE%AE-HTTP"><span class="nav-number">6.</span> <span class="nav-text">超文本传送协议 HTTP</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#HTTP-%E6%98%AF%E4%B8%8D%E4%BF%9D%E5%AD%98%E7%8A%B6%E6%80%81%E7%9A%84%E5%8D%8F%E8%AE%AE"><span class="nav-number">7.</span> <span class="nav-text">HTTP 是不保存状态的协议</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#HTTP-%E6%8C%81%E4%B9%85%E5%8C%96%E8%BF%9E%E6%8E%A5%E8%8A%82%E7%9C%81%E9%80%9A%E4%BF%A1%E9%87%8F"><span class="nav-number">8.</span> <span class="nav-text">HTTP 持久化连接节省通信量</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%AE%A1%E7%BA%BF%E5%8C%96"><span class="nav-number">9.</span> <span class="nav-text">管线化</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8-Cookie-%E7%9A%84%E7%8A%B6%E6%80%81%E7%AE%A1%E7%90%86"><span class="nav-number">10.</span> <span class="nav-text">使用 Cookie 的状态管理</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%AF%B7%E6%B1%82%E6%8A%A5%E6%96%87%E5%8F%8A%E5%93%8D%E5%BA%94%E6%8A%A5%E6%96%87%E7%9A%84%E7%BB%93%E6%9E%84"><span class="nav-number">11.</span> <span class="nav-text">请求报文及响应报文的结构</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8E%8B%E7%BC%A9%E4%BC%A0%E8%BE%93%E7%9A%84%E5%86%85%E5%AE%B9%E7%BC%96%E7%A0%81"><span class="nav-number">12.</span> <span class="nav-text">压缩传输的内容编码</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%88%86%E5%89%B2%E5%8F%91%E9%80%81%E7%9A%84%E5%88%86%E5%9D%97%E4%BC%A0%E8%BE%93%E7%BC%96%E7%A0%81"><span class="nav-number">13.</span> <span class="nav-text">分割发送的分块传输编码</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%8A%B6%E6%80%81%E7%A0%81%E5%91%8A%E7%9F%A5%E4%BB%8E%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%AB%AF%E8%BF%94%E5%9B%9E%E7%9A%84%E8%AF%B7%E6%B1%82%E7%BB%93%E6%9E%9C"><span class="nav-number">14.</span> <span class="nav-text">状态码告知从服务器端返回的请求结果</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%B0%8F%E7%BB%93"><span class="nav-number">15.</span> <span class="nav-text">小结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2017 - 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <!--<i class="fa fa-heart"></i>-->
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Bai HongHua</span>
+</div>
+
+
+<div class="powered-by">
+  <span>Powered by </span>
+  <span class="author" itemprop="copyrightHolder">Bai HongHua</span>
+</div>
+
+<div class="theme-info">
+  <span>Thanks For Hexo and NexT.Mist</span>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+  
+  <script type="text/javascript" src="true"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
